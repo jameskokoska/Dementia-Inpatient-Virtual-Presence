@@ -9,34 +9,23 @@ part of 'tables.dart';
 // ignore_for_file: type=lint
 class User extends DataClass implements Insertable<User> {
   final int id;
-  final String title;
-  final String content;
-  final int? category;
-  const User(
-      {required this.id,
-      required this.title,
-      required this.content,
-      this.category});
+  final String name;
+  final String description;
+  const User({required this.id, required this.name, required this.description});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['title'] = Variable<String>(title);
-    map['body'] = Variable<String>(content);
-    if (!nullToAbsent || category != null) {
-      map['category'] = Variable<int>(category);
-    }
+    map['name'] = Variable<String>(name);
+    map['body'] = Variable<String>(description);
     return map;
   }
 
   UsersCompanion toCompanion(bool nullToAbsent) {
     return UsersCompanion(
       id: Value(id),
-      title: Value(title),
-      content: Value(content),
-      category: category == null && nullToAbsent
-          ? const Value.absent()
-          : Value(category),
+      name: Value(name),
+      description: Value(description),
     );
   }
 
@@ -45,9 +34,8 @@ class User extends DataClass implements Insertable<User> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return User(
       id: serializer.fromJson<int>(json['id']),
-      title: serializer.fromJson<String>(json['title']),
-      content: serializer.fromJson<String>(json['content']),
-      category: serializer.fromJson<int?>(json['category']),
+      name: serializer.fromJson<String>(json['name']),
+      description: serializer.fromJson<String>(json['description']),
     );
   }
   @override
@@ -55,88 +43,70 @@ class User extends DataClass implements Insertable<User> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'title': serializer.toJson<String>(title),
-      'content': serializer.toJson<String>(content),
-      'category': serializer.toJson<int?>(category),
+      'name': serializer.toJson<String>(name),
+      'description': serializer.toJson<String>(description),
     };
   }
 
-  User copyWith(
-          {int? id,
-          String? title,
-          String? content,
-          Value<int?> category = const Value.absent()}) =>
-      User(
+  User copyWith({int? id, String? name, String? description}) => User(
         id: id ?? this.id,
-        title: title ?? this.title,
-        content: content ?? this.content,
-        category: category.present ? category.value : this.category,
+        name: name ?? this.name,
+        description: description ?? this.description,
       );
   @override
   String toString() {
     return (StringBuffer('User(')
           ..write('id: $id, ')
-          ..write('title: $title, ')
-          ..write('content: $content, ')
-          ..write('category: $category')
+          ..write('name: $name, ')
+          ..write('description: $description')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, content, category);
+  int get hashCode => Object.hash(id, name, description);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is User &&
           other.id == this.id &&
-          other.title == this.title &&
-          other.content == this.content &&
-          other.category == this.category);
+          other.name == this.name &&
+          other.description == this.description);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
   final Value<int> id;
-  final Value<String> title;
-  final Value<String> content;
-  final Value<int?> category;
+  final Value<String> name;
+  final Value<String> description;
   const UsersCompanion({
     this.id = const Value.absent(),
-    this.title = const Value.absent(),
-    this.content = const Value.absent(),
-    this.category = const Value.absent(),
+    this.name = const Value.absent(),
+    this.description = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
-    required String title,
-    required String content,
-    this.category = const Value.absent(),
-  })  : title = Value(title),
-        content = Value(content);
+    required String name,
+    required String description,
+  })  : name = Value(name),
+        description = Value(description);
   static Insertable<User> custom({
     Expression<int>? id,
-    Expression<String>? title,
-    Expression<String>? content,
-    Expression<int>? category,
+    Expression<String>? name,
+    Expression<String>? description,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (title != null) 'title': title,
-      if (content != null) 'body': content,
-      if (category != null) 'category': category,
+      if (name != null) 'name': name,
+      if (description != null) 'body': description,
     });
   }
 
   UsersCompanion copyWith(
-      {Value<int>? id,
-      Value<String>? title,
-      Value<String>? content,
-      Value<int?>? category}) {
+      {Value<int>? id, Value<String>? name, Value<String>? description}) {
     return UsersCompanion(
       id: id ?? this.id,
-      title: title ?? this.title,
-      content: content ?? this.content,
-      category: category ?? this.category,
+      name: name ?? this.name,
+      description: description ?? this.description,
     );
   }
 
@@ -146,14 +116,11 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (title.present) {
-      map['title'] = Variable<String>(title.value);
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
     }
-    if (content.present) {
-      map['body'] = Variable<String>(content.value);
-    }
-    if (category.present) {
-      map['category'] = Variable<int>(category.value);
+    if (description.present) {
+      map['body'] = Variable<String>(description.value);
     }
     return map;
   }
@@ -162,9 +129,8 @@ class UsersCompanion extends UpdateCompanion<User> {
   String toString() {
     return (StringBuffer('UsersCompanion(')
           ..write('id: $id, ')
-          ..write('title: $title, ')
-          ..write('content: $content, ')
-          ..write('category: $category')
+          ..write('name: $name, ')
+          ..write('description: $description')
           ..write(')'))
         .toString();
   }
@@ -182,26 +148,22 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
-  final VerificationMeta _titleMeta = const VerificationMeta('title');
+  final VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
-  late final GeneratedColumn<String> title = GeneratedColumn<String>(
-      'title', aliasedName, false,
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
       additionalChecks:
           GeneratedColumn.checkTextLength(minTextLength: 6, maxTextLength: 32),
       type: DriftSqlType.string,
       requiredDuringInsert: true);
-  final VerificationMeta _contentMeta = const VerificationMeta('content');
+  final VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
   @override
-  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
       'body', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  final VerificationMeta _categoryMeta = const VerificationMeta('category');
   @override
-  late final GeneratedColumn<int> category = GeneratedColumn<int>(
-      'category', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  @override
-  List<GeneratedColumn> get $columns => [id, title, content, category];
+  List<GeneratedColumn> get $columns => [id, name, description];
   @override
   String get aliasedName => _alias ?? 'users';
   @override
@@ -214,21 +176,17 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('title')) {
+    if (data.containsKey('name')) {
       context.handle(
-          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
-      context.missing(_titleMeta);
+      context.missing(_nameMeta);
     }
     if (data.containsKey('body')) {
-      context.handle(_contentMeta,
-          content.isAcceptableOrUnknown(data['body']!, _contentMeta));
+      context.handle(_descriptionMeta,
+          description.isAcceptableOrUnknown(data['body']!, _descriptionMeta));
     } else if (isInserting) {
-      context.missing(_contentMeta);
-    }
-    if (data.containsKey('category')) {
-      context.handle(_categoryMeta,
-          category.isAcceptableOrUnknown(data['category']!, _categoryMeta));
+      context.missing(_descriptionMeta);
     }
     return context;
   }
@@ -241,12 +199,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     return User(
       id: attachedDatabase.options.types
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      title: attachedDatabase.options.types
-          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
-      content: attachedDatabase.options.types
+      name: attachedDatabase.options.types
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      description: attachedDatabase.options.types
           .read(DriftSqlType.string, data['${effectivePrefix}body'])!,
-      category: attachedDatabase.options.types
-          .read(DriftSqlType.int, data['${effectivePrefix}category']),
     );
   }
 

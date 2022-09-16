@@ -8,9 +8,8 @@ int schemaVersionGlobal = 11;
 
 class Users extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get title => text().withLength(min: 6, max: 32)();
-  TextColumn get content => text().named('body')();
-  IntColumn get category => integer().nullable()();
+  TextColumn get name => text().withLength(min: 6, max: 32)();
+  TextColumn get description => text().named('body')();
 }
 
 @DriftDatabase(tables: [Users])
@@ -26,4 +25,11 @@ class PatientsDatabase extends _$PatientsDatabase {
       );
 
   //Queries can go here
+  Stream<List<User>>? watchUsers() {
+    return select(users).watch();
+  }
+
+  Future createOrUpdateUser(User user) {
+    return into(users).insertOnConflictUpdate(user);
+  }
 }

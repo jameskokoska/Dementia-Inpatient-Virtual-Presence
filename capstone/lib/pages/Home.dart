@@ -1,3 +1,5 @@
+import 'package:capstone/database/tables.dart';
+import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/tappable.dart';
 import 'package:capstone/widgets/textWidgets.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,9 +13,20 @@ class HomePage extends StatelessWidget {
     return CupertinoPageScaffold(
       child: CustomScrollView(
         slivers: <Widget>[
-          const CupertinoSliverNavigationBar(
-            largeTitle: Text('Home'),
-            trailing: Icon(CupertinoIcons.add_circled),
+          CupertinoSliverNavigationBar(
+            largeTitle: const Text('Home'),
+            trailing: CupertinoButton(
+              child: Container(color: Colors.blue, width: 40, height: 40),
+              onPressed: () => {
+                database.createOrUpdateUser(
+                  User(
+                    id: DateTime.now().millisecondsSinceEpoch,
+                    name: "Userrrrr",
+                    description: "description",
+                  ),
+                )
+              },
+            ),
           ),
           SliverFillRemaining(
             child: Column(
@@ -48,6 +61,34 @@ class NextPage extends StatelessWidget {
         slivers: <Widget>[
           CupertinoSliverNavigationBar(
             largeTitle: const Text('User'),
+          ),
+          StreamBuilder<List<User>>(
+            stream: database.watchUsers(),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return SliverPadding(
+                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 13),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (BuildContext context, int index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16.0),
+                          child: TextFont(
+                            textColor: Colors.white,
+                            text: snapshot.data![index].name,
+                          ),
+                        );
+                      },
+                      childCount: snapshot.data?.length, //snapshot.data?.length
+                    ),
+                  ),
+                );
+              } else {
+                return const SliverToBoxAdapter(
+                  child: SizedBox.shrink(),
+                );
+              }
+            },
           ),
           SliverFillRemaining(
             child: Column(
