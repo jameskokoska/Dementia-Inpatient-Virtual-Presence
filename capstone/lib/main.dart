@@ -4,6 +4,7 @@ import 'package:animations/animations.dart';
 import 'package:capstone/database/platform/native.dart';
 import 'package:capstone/pages/Home.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -73,9 +74,11 @@ Future<bool> updateSettings(setting, value,
 
 Map<String, dynamic> getSettingConstants(Map<String, dynamic> userSettings) {
   Map<String, dynamic> themeSetting = {
-    "system": ThemeMode.system,
-    "light": ThemeMode.light,
-    "dark": ThemeMode.dark,
+    "system": ThemeMode.system == ThemeMode.light
+        ? Brightness.light
+        : Brightness.dark,
+    "light": Brightness.light,
+    "dark": Brightness.dark,
   };
 
   Map<String, dynamic> userSettingsNew = {...userSettings};
@@ -149,7 +152,7 @@ class _InitializeAppState extends State<InitializeApp> {
         );
         if (snapshot.hasData || entireAppLoaded == true) {
           debugPrint("Initialized Settings");
-          child = const HomePage();
+          child = const PageScaffold();
         }
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 500),
@@ -161,6 +164,20 @@ class _InitializeAppState extends State<InitializeApp> {
           child: child,
         );
       },
+    );
+  }
+}
+
+class PageScaffold extends StatelessWidget {
+  const PageScaffold({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoApp(
+      theme: CupertinoThemeData(
+        brightness: getSettingConstants(appStateSettings)["theme"],
+      ),
+      home: HomePage(),
     );
   }
 }
