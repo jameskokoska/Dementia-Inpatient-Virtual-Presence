@@ -1,8 +1,9 @@
 import 'package:drift/drift.dart';
+export 'platform/shared.dart';
 part 'tables.g.dart';
 
 // Generate database code
-// flutter packages pub run build_runner build
+// flutter packages pub run build_runner build --delete-conflicting-outputs
 
 int schemaVersionGlobal = 11;
 

@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:animations/animations.dart';
-import 'package:capstone/database/platform/native.dart';
 import 'package:capstone/pages/Home.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:capstone/database/tables.dart';
 
 void main() async {
   database = await constructDb();
