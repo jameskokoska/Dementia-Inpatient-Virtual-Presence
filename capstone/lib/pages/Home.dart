@@ -1,5 +1,6 @@
 import 'package:capstone/database/tables.dart';
 import 'package:capstone/pages/CreateUserPage.dart';
+import 'package:capstone/pages/Face%20Scanner.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,12 @@ class HomePage extends StatelessWidget {
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {
                         return CupertinoButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(context, CupertinoPageRoute<Widget>(
+                                builder: (BuildContext context) {
+                              return FaceScannerPage();
+                            }));
+                          },
                           child: Container(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.end,

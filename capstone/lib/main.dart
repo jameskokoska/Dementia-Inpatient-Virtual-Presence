@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:animations/animations.dart';
+import 'package:camera/camera.dart';
+import 'package:capstone/pages/CameraView.dart';
 import 'package:capstone/pages/Home.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,6 +14,8 @@ import 'package:capstone/database/tables.dart';
 void main() async {
   database = await constructDb();
   entireAppLoaded = false;
+  WidgetsFlutterBinding.ensureInitialized();
+  cameras = await availableCameras();
   runApp(const InitializeDatabase());
   // initNotificationListener();
 }
