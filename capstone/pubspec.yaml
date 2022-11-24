@@ -43,6 +43,7 @@ dependencies:
   google_mlkit_face_detection: ^0.5.0
   mic_stream: ^0.6.2
   speech_to_text: ^6.1.0
+  record: ^4.4.3
 
 dev_dependencies:
   flutter_test:
