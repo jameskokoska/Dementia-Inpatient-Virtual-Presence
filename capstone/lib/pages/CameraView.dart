@@ -10,8 +10,6 @@ import '../main.dart';
 
 List<CameraDescription> cameras = [];
 
-enum ScreenMode { liveFeed, gallery }
-
 class CameraView extends StatefulWidget {
   CameraView(
       {Key? key,
@@ -19,7 +17,6 @@ class CameraView extends StatefulWidget {
       required this.customPaint,
       this.text,
       required this.onImage,
-      this.onScreenModeChanged,
       this.initialDirection = CameraLensDirection.back})
       : super(key: key);
 
@@ -27,7 +24,6 @@ class CameraView extends StatefulWidget {
   final CustomPaint? customPaint;
   final String? text;
   final Function(InputImage inputImage) onImage;
-  final Function(ScreenMode mode)? onScreenModeChanged;
   final CameraLensDirection initialDirection;
 
   @override
@@ -35,7 +31,6 @@ class CameraView extends StatefulWidget {
 }
 
 class _CameraViewState extends State<CameraView> {
-  ScreenMode _mode = ScreenMode.liveFeed;
   CameraController? _controller;
   File? _image;
   String? _path;
@@ -69,8 +64,6 @@ class _CameraViewState extends State<CameraView> {
 
     if (_cameraIndex != -1) {
       _startLiveFeed();
-    } else {
-      _mode = ScreenMode.gallery;
     }
   }
 

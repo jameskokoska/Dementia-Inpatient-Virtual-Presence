@@ -33,4 +33,8 @@ class PatientsDatabase extends _$PatientsDatabase {
   Future createOrUpdateUser(User user) {
     return into(users).insertOnConflictUpdate(user);
   }
+
+  Future deleteUser(int id) {
+    return (delete(users)..where((user) => user.id.equals(id))).go();
+  }
 }

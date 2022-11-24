@@ -10,6 +10,7 @@ class CreateUserPage extends StatelessWidget {
   Widget build(BuildContext context) {
     String name = "";
     String description = "";
+    final _formKey = GlobalKey<FormState>();
 
     return CupertinoPageScaffold(
       child: CustomScrollView(
@@ -21,10 +22,11 @@ class CreateUserPage extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Form(
+                  key: _formKey,
                   autovalidateMode: AutovalidateMode.always,
                   onChanged: () {},
                   child: CupertinoFormSection.insetGrouped(
-                    header: Text('Account Details'),
+                    header: Text('Details'),
                     children: [
                       CupertinoTextFormFieldRow(
                         prefix: const Text('Name'),
@@ -56,14 +58,16 @@ class CreateUserPage extends StatelessWidget {
                 CupertinoButton.filled(
                   child: Text("Add User"),
                   onPressed: () {
-                    database.createOrUpdateUser(
-                      User(
-                        id: DateTime.now().millisecondsSinceEpoch,
-                        name: name,
-                        description: description,
-                      ),
-                    );
-                    Navigator.pop(context);
+                    if (_formKey.currentState!.validate()) {
+                      database.createOrUpdateUser(
+                        User(
+                          id: DateTime.now().millisecondsSinceEpoch,
+                          name: name,
+                          description: description,
+                        ),
+                      );
+                      Navigator.pop(context);
+                    }
                   },
                 ),
               ],

@@ -15,56 +15,103 @@ class UserEntry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return CupertinoButton(
-      onPressed: () {
-        Navigator.push(
-          context,
-          CupertinoPageRoute<Widget>(
-            builder: (BuildContext context) {
-              return CallPage();
-            },
+    return Dismissible(
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: AlignmentDirectional.centerEnd,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.red,
+        ),
+        child: const Padding(
+          padding: EdgeInsets.only(right: 25),
+          child: Icon(
+            Icons.delete,
+            color: Colors.white,
           ),
-        );
-      },
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(100),
-              color: getColor(context, "gray"),
-            ),
-            child: Center(
-              child: TextFont(
-                text: user.name[0],
-                fontWeight: FontWeight.bold,
-                textColor: Colors.white,
-                textAlign: TextAlign.center,
-                fontSize: 25,
+        ),
+      ),
+      confirmDismiss: (DismissDirection direction) async {
+        return await showCupertinoDialog(
+          context: context,
+          builder: (context) => CupertinoAlertDialog(
+            title: Text('Delete ${user.name} ?'),
+            actions: [
+              CupertinoDialogAction(
+                child: Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
               ),
-            ),
-          ),
-          const SizedBox(width: 13),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              TextFont(
-                text: user.name,
-                fontWeight: FontWeight.bold,
-                textColor: getColor(context, "black"),
-                fontSize: 20,
-              ),
-              TextFont(
-                text: user.description,
-                textColor: getColor(context, "black"),
-                fontSize: 16,
+              CupertinoDialogAction(
+                child: Text('Delete'),
+                isDestructiveAction: true,
+                onPressed: () async {
+                  Navigator.of(context).pop(true);
+                  await Future.delayed(Duration(milliseconds: 500), () async {
+                    await database.deleteUser(user.id);
+                  });
+                },
               ),
             ],
           ),
-        ],
+        );
+      },
+      key: ValueKey<int>(this.user.id),
+      onDismissed: (DismissDirection direction) {},
+      child: CupertinoButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            CupertinoPageRoute<Widget>(
+              builder: (BuildContext context) {
+                return CallPage();
+              },
+            ),
+          );
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: getColor(context, "gray"),
+              ),
+              child: Center(
+                child: TextFont(
+                  text: user.name.isEmpty ? "" : user.name[0],
+                  fontWeight: FontWeight.bold,
+                  textColor: Colors.white,
+                  textAlign: TextAlign.center,
+                  fontSize: 25,
+                ),
+              ),
+            ),
+            const SizedBox(width: 13),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                TextFont(
+                  text: user.name,
+                  fontWeight: FontWeight.bold,
+                  textColor: getColor(context, "black"),
+                  fontSize: 20,
+                ),
+                user.description != ""
+                    ? TextFont(
+                        text: user.description,
+                        textColor: getColor(context, "black"),
+                        fontSize: 16,
+                      )
+                    : SizedBox.shrink(),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
