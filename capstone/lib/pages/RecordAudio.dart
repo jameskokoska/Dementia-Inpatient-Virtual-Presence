@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
-
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -14,9 +14,9 @@ class RecordAudio extends StatefulWidget {
 }
 
 class _RecordAudioState extends State<RecordAudio> {
-  late StreamSubscription<List<int>> listener;
+  stt.SpeechToText speech = stt.SpeechToText();
   bool isRecording = false;
-  double averageSample = 0.0;
+
   @override
   Widget build(BuildContext context) {
     return CupertinoButton(
@@ -26,22 +26,36 @@ class _RecordAudioState extends State<RecordAudio> {
             isRecording = true;
           });
 
-          Stream<Uint8List>? stream =
-              await MicStream.microphone(sampleRate: 44100);
-          listener = stream!.listen((samples) {
-            print(samples);
-            setState(
-              () {
-                averageSample =
-                    samples.reduce((a, b) => a + b) / samples.length;
+          bool available = await speech.initialize(
+            onStatus: (status) {
+              print(status);
+            },
+          );
+          if (available) {
+            speech.listen(
+              onResult: (result) {
+                print(result.recognizedWords);
               },
+              listenFor: const Duration(milliseconds: 10000),
             );
-          });
+            for (int i = 0; i < 5000; i++) {
+              await Future.delayed(Duration(milliseconds: 100), () {
+                speech.listen(
+                  onResult: (result) {
+                    print(result.recognizedWords);
+                  },
+                  partialResults: true,
+                );
+              });
+            }
+          } else {
+            print("The user has denied the use of speech recognition.");
+          }
         } else {
+          speech.stop();
           setState(() {
             isRecording = false;
           });
-          listener.cancel();
         }
       },
       child: Container(
@@ -50,7 +64,6 @@ class _RecordAudioState extends State<RecordAudio> {
           children: <Widget>[
             Icon(CupertinoIcons.mic_fill),
             Text(isRecording ? "Stop" : "Record Audio"),
-            Text(averageSample.toString()),
           ],
         ),
       ),

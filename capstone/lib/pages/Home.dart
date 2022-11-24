@@ -6,6 +6,7 @@ import 'package:capstone/pages/CreateUserPage.dart';
 import 'package:capstone/pages/Face%20Scanner.dart';
 import 'package:capstone/pages/RecordAudio.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
+import 'package:capstone/widgets/UserEntry.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mic_stream/mic_stream.dart';
@@ -23,7 +24,6 @@ class HomePage extends StatelessWidget {
             trailing: CupertinoButton(
               child: const Icon(CupertinoIcons.plus_app),
               onPressed: () {
-                print("object");
                 Navigator.push(context,
                     CupertinoPageRoute<Widget>(builder: (BuildContext context) {
                   return CreateUserPage();
@@ -59,30 +59,13 @@ class HomePage extends StatelessWidget {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return SliverPadding(
-                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 13),
+                  padding: EdgeInsets.symmetric(vertical: 20, horizontal: 5),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {
-                        return CupertinoButton(
-                          onPressed: () {
-                            Navigator.push(context, CupertinoPageRoute<Widget>(
-                                builder: (BuildContext context) {
-                              return FaceScannerPage();
-                            }));
-                          },
-                          child: Container(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: <Widget>[
-                                Icon(CupertinoIcons.person),
-                                Text(snapshot.data![index].name),
-                                Text(snapshot.data![index].description),
-                              ],
-                            ),
-                          ),
-                        );
+                        return UserEntry(user: snapshot.data![index]);
                       },
-                      childCount: snapshot.data?.length, //snapshot.data?.length
+                      childCount: snapshot.data?.length,
                     ),
                   ),
                 );
