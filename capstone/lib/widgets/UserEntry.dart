@@ -65,7 +65,9 @@ class UserEntry extends StatelessWidget {
             context,
             CupertinoPageRoute<Widget>(
               builder: (BuildContext context) {
-                return CallPage();
+                return CallPage(
+                  user: user,
+                );
               },
             ),
           );

@@ -44,6 +44,7 @@ dependencies:
   mic_stream: ^0.6.2
   speech_to_text: ^6.1.0
   record: ^4.4.3
+  audioplayers: ^1.1.1
 
 dev_dependencies:
   flutter_test:

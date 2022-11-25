@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
+import 'package:capstone/pages/Face%20Scanner.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/TextFont.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:record/record.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 final _formKey = GlobalKey<FormState>();
 
@@ -58,23 +62,34 @@ class CreateUserPage extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(height: 15),
+                const SizedBox(height: 15),
                 CupertinoButton.filled(
-                  child: Text("Add User"),
+                  child: const Text("Scan Facial Features"),
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
-                      database.createOrUpdateUser(
-                        User(
-                          id: DateTime.now().millisecondsSinceEpoch,
-                          name: name,
-                          description: description,
-                        ),
-                      );
-                      // Navigator.pop(context);
                       Navigator.push(context, CupertinoPageRoute<Widget>(
                           builder: (BuildContext context) {
-                        return RecordResponse();
+                        return FaceScannerPage(
+                          user: User(
+                            id: DateTime.now().millisecondsSinceEpoch,
+                            name: name,
+                            description: description,
+                            recordings: {},
+                          ),
+                        );
                       }));
+                      // Navigator.push(context, CupertinoPageRoute<Widget>(
+                      //     builder: (BuildContext context) {
+                      //   return RecordResponse(
+                      //     responseId: "0",
+                      //     user: User(
+                      //       id: DateTime.now().millisecondsSinceEpoch,
+                      //       name: name,
+                      //       description: description,
+                      //       recordings: {},
+                      //     ),
+                      //   );
+                      // }));
                     }
                   },
                 ),
@@ -88,7 +103,10 @@ class CreateUserPage extends StatelessWidget {
 }
 
 class RecordResponse extends StatefulWidget {
-  const RecordResponse({super.key});
+  const RecordResponse(
+      {required this.responseId, required this.user, super.key});
+  final String responseId;
+  final User user;
 
   @override
   State<RecordResponse> createState() => _RecordResponseState();
@@ -112,7 +130,7 @@ class _RecordResponseState extends State<RecordResponse> {
     });
   }
 
-  void _recordAudio() async {
+  Future<void> _recordAudio() async {
     if (isRecording) {
       String? path = await record.stop();
       print(path);
@@ -120,13 +138,70 @@ class _RecordResponseState extends State<RecordResponse> {
         isRecording = false;
         recordingPath = path;
       });
-      showCupertinoSnackBar(context: context, message: path ?? "");
     } else {
       await record.start();
       bool status = await record.isRecording();
       setState(() {
         isRecording = status;
       });
+    }
+  }
+
+  Future<void> _deleteAudio() async {
+    try {
+      final file = File(recordingPath!);
+      await file.delete();
+      showCupertinoSnackBar(context: context, message: "Deleted recording");
+      setState(() {
+        recordingPath = null;
+      });
+      return;
+    } catch (e) {
+      showCupertinoSnackBar(context: context, message: e.toString());
+      return;
+    }
+  }
+
+  void _restartRecording() async {
+    await _deleteAudio();
+    await _recordAudio();
+  }
+
+  void _nextId() async {
+    if (recordingPath == null) {
+      showCupertinoDialog(
+        context: context,
+        builder: (context) => CupertinoAlertDialog(
+          title: const Text('Please record a response before proceeding'),
+          actions: [
+            CupertinoDialogAction(
+              onPressed: () async {
+                Navigator.pop(context);
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    } else {
+      String? nextId = determineNextId(widget.responseId);
+      if (nextId == null) {
+        database.createOrUpdateUser(
+          widget.user,
+        );
+        // we are done getting all the audio recordings
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      } else {
+        User user = widget.user.copyWith(recordings: {
+          ...widget.user.recordings,
+          widget.responseId: recordingPath ?? ""
+        });
+        print(user);
+        Navigator.push(context,
+            CupertinoPageRoute<Widget>(builder: (BuildContext context) {
+          return RecordResponse(responseId: nextId, user: user);
+        }));
+      }
     }
   }
 
@@ -154,20 +229,110 @@ class _RecordResponseState extends State<RecordResponse> {
                           text: "Please say:",
                           fontSize: 15,
                           textColor: getColor(context, "gray"),
+                          textAlign: TextAlign.center,
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Center(
-                        child: TextFont(
-                          text: "The time is 1:59pm",
-                          fontSize: 25,
-                          fontWeight: FontWeight.bold,
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: TextFont(
+                            text: responses[widget.responseId] ?? "",
+                            fontSize: 25,
+                            fontWeight: FontWeight.bold,
+                            textAlign: TextAlign.center,
+                            maxLines: 50,
+                          ),
                         ),
                       ),
                     ],
                   ),
                 )
               ],
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 50),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    recordingPath == null
+                        ? const SizedBox.shrink()
+                        : Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: CupertinoButton(
+                              color: getColor(context, "lightDark"),
+                              borderRadius: BorderRadius.circular(50),
+                              minSize: 50,
+                              padding: EdgeInsets.zero,
+                              onPressed: () {
+                                _restartRecording();
+                              },
+                              child: Icon(
+                                CupertinoIcons.restart,
+                                color: getColor(context, "black"),
+                              ),
+                            ),
+                          ),
+                    const SizedBox(width: 15),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Center(
+                          child: CupertinoButton(
+                            color: isRecording
+                                ? getColor(context, "red")
+                                : getColor(context, "systemBlue"),
+                            borderRadius: BorderRadius.circular(50),
+                            minSize: 70,
+                            padding: EdgeInsets.zero,
+                            onPressed: () {
+                              _recordAudio();
+                            },
+                            child: Icon(
+                              isRecording
+                                  ? CupertinoIcons.stop_fill
+                                  : CupertinoIcons.mic_fill,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        Center(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 5),
+                            child: TextFont(
+                              text: isRecording ? "Recording" : "",
+                              fontSize: 13,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(width: 15),
+                    recordingPath == null
+                        ? const SizedBox.shrink()
+                        : Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: CupertinoButton(
+                              color: getColor(context, "lightDark"),
+                              borderRadius: BorderRadius.circular(50),
+                              minSize: 50,
+                              padding: EdgeInsets.zero,
+                              onPressed: () {
+                                _deleteAudio();
+                              },
+                              child: Icon(
+                                CupertinoIcons.delete,
+                                color: getColor(context, "black"),
+                              ),
+                            ),
+                          ),
+                  ],
+                ),
+              ),
             ),
             Align(
               alignment: Alignment.bottomCenter,
@@ -181,6 +346,7 @@ class _RecordResponseState extends State<RecordResponse> {
                     padding: EdgeInsets.zero,
                     color: getColor(context, "lightDark"),
                     onPressed: () {
+                      if (recordingPath != null) _deleteAudio();
                       Navigator.pop(context);
                     },
                     child: Icon(
@@ -188,40 +354,13 @@ class _RecordResponseState extends State<RecordResponse> {
                       color: getColor(context, "black"),
                     ),
                   ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Center(
-                        child: CupertinoButton(
-                          color: getColor(context, "systemBlue"),
-                          borderRadius: BorderRadius.circular(50),
-                          minSize: 70,
-                          padding: EdgeInsets.zero,
-                          onPressed: () {
-                            _recordAudio();
-                          },
-                          child: Icon(
-                            isRecording
-                                ? CupertinoIcons.mic_fill
-                                : CupertinoIcons.mic,
-                            color: getColor(context, "black"),
-                          ),
-                        ),
-                      ),
-                      Center(
-                        child: Padding(
-                          padding: EdgeInsets.only(top: 5),
-                          child: TextFont(
-                            text: isRecording ? "Recording..." : "",
-                            fontSize: 15,
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 50,
-                      ),
-                    ],
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextFont(
+                      text: "${widget.responseId} / ${responses.keys.length}",
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   Opacity(
                     opacity: recordingPath == null ? 0.2 : 1,
@@ -231,23 +370,7 @@ class _RecordResponseState extends State<RecordResponse> {
                       padding: EdgeInsets.zero,
                       color: getColor(context, "lightDark"),
                       onPressed: () {
-                        if (recordingPath == null) {
-                          showCupertinoDialog(
-                            context: context,
-                            builder: (context) => CupertinoAlertDialog(
-                              title: const Text(
-                                  'Please record a response before proceeding'),
-                              actions: [
-                                CupertinoDialogAction(
-                                  onPressed: () async {
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('OK'),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
+                        _nextId();
                       },
                       child: Icon(
                         CupertinoIcons.forward,
@@ -332,18 +455,20 @@ class _CupertinoSnackBarState extends State<_CupertinoSnackBar> {
       right: 20,
       curve: show ? Curves.linearToEaseOut : Curves.easeInToLinear,
       duration: Duration(milliseconds: widget.animationDuration),
-      child: CupertinoPopupSurface(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 10,
-          ),
-          child: TextFont(
-            text: widget.message,
-            textAlign: TextAlign.center,
-            fontSize: 15,
-            maxLines: 100,
-            textColor: Colors.black,
+      child: Material(
+        child: CupertinoPopupSurface(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 10,
+            ),
+            child: TextFont(
+              text: widget.message,
+              textAlign: TextAlign.center,
+              fontSize: 15,
+              maxLines: 100,
+              textColor: Colors.black,
+            ),
           ),
         ),
       ),

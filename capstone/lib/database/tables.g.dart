@@ -11,13 +11,22 @@ class User extends DataClass implements Insertable<User> {
   final int id;
   final String name;
   final String description;
-  const User({required this.id, required this.name, required this.description});
+  final Map<String, String> recordings;
+  const User(
+      {required this.id,
+      required this.name,
+      required this.description,
+      required this.recordings});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
     map['description'] = Variable<String>(description);
+    {
+      final converter = $UsersTable.$converter0;
+      map['recordings'] = Variable<String>(converter.toSql(recordings));
+    }
     return map;
   }
 
@@ -26,6 +35,7 @@ class User extends DataClass implements Insertable<User> {
       id: Value(id),
       name: Value(name),
       description: Value(description),
+      recordings: Value(recordings),
     );
   }
 
@@ -36,6 +46,7 @@ class User extends DataClass implements Insertable<User> {
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String>(json['description']),
+      recordings: serializer.fromJson<Map<String, String>>(json['recordings']),
     );
   }
   @override
@@ -45,68 +56,87 @@ class User extends DataClass implements Insertable<User> {
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String>(description),
+      'recordings': serializer.toJson<Map<String, String>>(recordings),
     };
   }
 
-  User copyWith({int? id, String? name, String? description}) => User(
+  User copyWith(
+          {int? id,
+          String? name,
+          String? description,
+          Map<String, String>? recordings}) =>
+      User(
         id: id ?? this.id,
         name: name ?? this.name,
         description: description ?? this.description,
+        recordings: recordings ?? this.recordings,
       );
   @override
   String toString() {
     return (StringBuffer('User(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('description: $description')
+          ..write('description: $description, ')
+          ..write('recordings: $recordings')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, description);
+  int get hashCode => Object.hash(id, name, description, recordings);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is User &&
           other.id == this.id &&
           other.name == this.name &&
-          other.description == this.description);
+          other.description == this.description &&
+          other.recordings == this.recordings);
 }
 
 class UsersCompanion extends UpdateCompanion<User> {
   final Value<int> id;
   final Value<String> name;
   final Value<String> description;
+  final Value<Map<String, String>> recordings;
   const UsersCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.description = const Value.absent(),
+    this.recordings = const Value.absent(),
   });
   UsersCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     required String description,
+    required Map<String, String> recordings,
   })  : name = Value(name),
-        description = Value(description);
+        description = Value(description),
+        recordings = Value(recordings);
   static Insertable<User> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? description,
+    Expression<String>? recordings,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (description != null) 'description': description,
+      if (recordings != null) 'recordings': recordings,
     });
   }
 
   UsersCompanion copyWith(
-      {Value<int>? id, Value<String>? name, Value<String>? description}) {
+      {Value<int>? id,
+      Value<String>? name,
+      Value<String>? description,
+      Value<Map<String, String>>? recordings}) {
     return UsersCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
+      recordings: recordings ?? this.recordings,
     );
   }
 
@@ -122,6 +152,10 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (description.present) {
       map['description'] = Variable<String>(description.value);
     }
+    if (recordings.present) {
+      final converter = $UsersTable.$converter0;
+      map['recordings'] = Variable<String>(converter.toSql(recordings.value));
+    }
     return map;
   }
 
@@ -130,7 +164,8 @@ class UsersCompanion extends UpdateCompanion<User> {
     return (StringBuffer('UsersCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('description: $description')
+          ..write('description: $description, ')
+          ..write('recordings: $recordings')
           ..write(')'))
         .toString();
   }
@@ -167,8 +202,14 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
           ),
           type: DriftSqlType.string,
           requiredDuringInsert: true);
+  final VerificationMeta _recordingsMeta = const VerificationMeta('recordings');
   @override
-  List<GeneratedColumn> get $columns => [id, name, description];
+  late final GeneratedColumnWithTypeConverter<Map<String, String>, String>
+      recordings = GeneratedColumn<String>('recordings', aliasedName, false,
+              type: DriftSqlType.string, requiredDuringInsert: true)
+          .withConverter<Map<String, String>>($UsersTable.$converter0);
+  @override
+  List<GeneratedColumn> get $columns => [id, name, description, recordings];
   @override
   String get aliasedName => _alias ?? 'users';
   @override
@@ -195,6 +236,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     } else if (isInserting) {
       context.missing(_descriptionMeta);
     }
+    context.handle(_recordingsMeta, const VerificationResult.success());
     return context;
   }
 
@@ -210,6 +252,8 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       description: attachedDatabase.options.types
           .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      recordings: $UsersTable.$converter0.fromSql(attachedDatabase.options.types
+          .read(DriftSqlType.string, data['${effectivePrefix}recordings'])!),
     );
   }
 
@@ -217,6 +261,9 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
   $UsersTable createAlias(String alias) {
     return $UsersTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<Map<String, String>, String> $converter0 =
+      const MapInColumnConverter();
 }
 
 abstract class _$PatientsDatabase extends GeneratedDatabase {

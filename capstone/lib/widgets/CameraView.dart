@@ -3,7 +3,8 @@ import 'package:capstone/pages/CameraView.dart';
 import 'package:flutter/material.dart';
 
 class CameraView extends StatefulWidget {
-  const CameraView({Key? key}) : super(key: key);
+  const CameraView({required this.isFacingFront, Key? key}) : super(key: key);
+  final bool isFacingFront;
 
   @override
   State<CameraView> createState() => _CameraViewState();
@@ -11,13 +12,33 @@ class CameraView extends StatefulWidget {
 
 class _CameraViewState extends State<CameraView> {
   late CameraController controller;
+  late bool currentIsFacingFront = widget.isFacingFront;
 
   @override
   void initState() {
     super.initState();
-    int cameraIndex = cameras.indexOf(cameras.firstWhere(
-        (camera) => camera.lensDirection == CameraLensDirection.front));
+    _initCamera(widget.isFacingFront);
+  }
+
+  @override
+  void didUpdateWidget(Widget oldWidget) {
+    if (widget.isFacingFront != currentIsFacingFront &&
+        controller.value.isInitialized) {
+      _initCamera(widget.isFacingFront);
+      currentIsFacingFront = widget.isFacingFront;
+    }
+  }
+
+  Future<void> _initCamera(bool isFacingFront) async {
+    int cameraIndex;
+    if (isFacingFront) {
+      cameraIndex = cameras.indexOf(cameras.firstWhere(
+          (camera) => camera.lensDirection == CameraLensDirection.front));
+    } else {
+      cameraIndex = 0;
+    }
     controller = CameraController(cameras[cameraIndex], ResolutionPreset.max);
+
     controller.initialize().then((_) {
       if (!mounted) {
         return;
