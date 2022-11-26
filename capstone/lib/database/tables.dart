@@ -9,8 +9,8 @@ int schemaVersionGlobal = 11;
 
 class Users extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get name => text()();
-  TextColumn get description => text()();
+  TextColumn get name => text().withLength(min: 0)();
+  TextColumn get description => text().withLength(min: 0)();
 }
 
 @DriftDatabase(tables: [Users])

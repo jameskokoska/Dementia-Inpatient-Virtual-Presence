@@ -46,7 +46,8 @@ class InitializeDatabase extends StatelessWidget {
           width: 50,
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(
-                Theme.of(context).colorScheme.secondary),
+              Theme.of(context).colorScheme.secondary,
+            ),
           ),
         );
         if (snapshot.hasData || entireAppLoaded == true) {
@@ -151,7 +152,8 @@ class _InitializeAppState extends State<InitializeApp> {
           width: 50,
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(
-                Theme.of(context).colorScheme.secondary),
+              Theme.of(context).colorScheme.secondary,
+            ),
           ),
         );
         if (snapshot.hasData || entireAppLoaded == true) {
@@ -177,11 +179,22 @@ class PageScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return const MaterialApp(
+      home: Home(),
+    );
+  }
+}
+
+class Home extends StatelessWidget {
+  const Home({super.key});
+
+  @override
+  Widget build(BuildContext context) {
     return CupertinoApp(
       theme: CupertinoThemeData(
-        brightness: getSettingConstants(appStateSettings)["theme"],
+        brightness: MediaQuery.of(context).platformBrightness,
       ),
-      home: HomePage(),
+      home: const HomePage(),
     );
   }
 }

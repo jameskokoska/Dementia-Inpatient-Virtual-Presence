@@ -17,7 +17,7 @@ class User extends DataClass implements Insertable<User> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
-    map['body'] = Variable<String>(description);
+    map['description'] = Variable<String>(description);
     return map;
   }
 
@@ -97,7 +97,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (description != null) 'body': description,
+      if (description != null) 'description': description,
     });
   }
 
@@ -120,7 +120,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       map['name'] = Variable<String>(name.value);
     }
     if (description.present) {
-      map['body'] = Variable<String>(description.value);
+      map['description'] = Variable<String>(description.value);
     }
     return map;
   }
@@ -150,18 +150,23 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       defaultConstraints: 'PRIMARY KEY AUTOINCREMENT');
   final VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
-  late final GeneratedColumn<String> name = GeneratedColumn<String>(
-      'name', aliasedName, false,
-      additionalChecks:
-          GeneratedColumn.checkTextLength(minTextLength: 6, maxTextLength: 32),
-      type: DriftSqlType.string,
-      requiredDuringInsert: true);
+  late final GeneratedColumn<String> name =
+      GeneratedColumn<String>('name', aliasedName, false,
+          additionalChecks: GeneratedColumn.checkTextLength(
+            minTextLength: 0,
+          ),
+          type: DriftSqlType.string,
+          requiredDuringInsert: true);
   final VerificationMeta _descriptionMeta =
       const VerificationMeta('description');
   @override
-  late final GeneratedColumn<String> description = GeneratedColumn<String>(
-      'body', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
+  late final GeneratedColumn<String> description =
+      GeneratedColumn<String>('description', aliasedName, false,
+          additionalChecks: GeneratedColumn.checkTextLength(
+            minTextLength: 0,
+          ),
+          type: DriftSqlType.string,
+          requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [id, name, description];
   @override
@@ -182,9 +187,11 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('body')) {
-      context.handle(_descriptionMeta,
-          description.isAcceptableOrUnknown(data['body']!, _descriptionMeta));
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
     } else if (isInserting) {
       context.missing(_descriptionMeta);
     }
@@ -202,7 +209,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       name: attachedDatabase.options.types
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       description: attachedDatabase.options.types
-          .read(DriftSqlType.string, data['${effectivePrefix}body'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
     );
   }
 
