@@ -13,7 +13,9 @@ import 'package:flutter/material.dart';
 import 'package:mic_stream/mic_stream.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+  const HomePage({required this.setUser, super.key});
+
+  final Function(User) setUser;
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +105,8 @@ class HomePage extends StatelessWidget {
                             ),
                           );
                         }
-                        return UserEntry(user: snapshot.data![index - 1]);
+                        return UserEntry(
+                            user: snapshot.data![index - 1], setUser: setUser);
                       },
                       childCount: (snapshot.data?.length)! + 1,
                     ),

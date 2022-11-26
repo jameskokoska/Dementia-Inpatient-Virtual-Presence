@@ -11,8 +11,10 @@ import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/cupertino.dart';
 
 class CallPage extends StatefulWidget {
-  const CallPage({required this.user, super.key});
-  final User user;
+  const CallPage(
+      {required this.user, required this.setCurrentPageIndex, super.key});
+  final User? user;
+  final Function(int) setCurrentPageIndex;
 
   @override
   State<CallPage> createState() => _CallPageState();
@@ -24,10 +26,27 @@ class _CallPageState extends State<CallPage> {
   late StreamSubscription<void> _playerStateChangedSubscription;
   bool isRecording = false;
   bool isMuted = false;
+  bool isMutedFrontEnd = false;
   String lastRecognizedText = "";
   String lastStatus = "";
   bool isFacingFront = true;
   bool isPlayingARecording = false;
+  late User? user = widget.user;
+
+  @override
+  void didUpdateWidget(Widget oldWidget) {
+    if (widget.user != user) {
+      setState(() {
+        user = widget.user;
+        isRecording = true;
+        lastStatus = "";
+        lastRecognizedText = "";
+        isPlayingARecording = false;
+        isMuted = false;
+        isMutedFrontEnd = false;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -44,6 +63,7 @@ class _CallPageState extends State<CallPage> {
       bool available = await speech.initialize(
         onStatus: (status) {
           if (status == "done" && lastStatus == "notListening") {
+            _determineWhatToPlay(lastRecognizedText);
             setState(() {
               if (lastRecognizedText.contains("<Pause>")) {
                 lastRecognizedText = "<Pause>";
@@ -51,7 +71,6 @@ class _CallPageState extends State<CallPage> {
                 lastRecognizedText = "$lastRecognizedText <Pause>";
               }
             });
-            _determineWhatToPlay(lastRecognizedText);
           }
           lastStatus = status;
         },
@@ -60,21 +79,7 @@ class _CallPageState extends State<CallPage> {
         setState(() {
           isRecording = true;
         });
-        while (isRecording) {
-          await Future.delayed(const Duration(milliseconds: 100), () {
-            if (!isMuted) {
-              speech.listen(
-                onResult: (result) {
-                  setState(() {
-                    lastRecognizedText = result.recognizedWords;
-                  });
-                  // print(result.recognizedWords);
-                },
-                partialResults: true,
-              );
-            }
-          });
-        }
+        _startRecordingLoop();
       } else {
         setState(() {
           isRecording = false;
@@ -83,10 +88,21 @@ class _CallPageState extends State<CallPage> {
     });
   }
 
-  void popRoute() {
-    Future.delayed(const Duration(milliseconds: 100), () {
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    });
+  _startRecordingLoop() async {
+    while (true) {
+      await Future.delayed(const Duration(milliseconds: 100), () {
+        if (!isMuted && user != null && isRecording && !isMutedFrontEnd) {
+          speech.listen(
+            onResult: (result) {
+              setState(() {
+                lastRecognizedText = result.recognizedWords;
+              });
+            },
+            partialResults: true,
+          );
+        }
+      });
+    }
   }
 
   void _showCallInfo() {
@@ -97,13 +113,13 @@ class _CallPageState extends State<CallPage> {
         content: Column(
           children: [
             Text(
-              widget.user.name,
+              user!.name,
               textAlign: TextAlign.center,
             ),
-            widget.user.description != ""
-                ? Text(widget.user.description, textAlign: TextAlign.center)
+            user!.description != ""
+                ? Text(user!.description, textAlign: TextAlign.center)
                 : const SizedBox.shrink(),
-            Text(widget.user.recordings["1"]!, textAlign: TextAlign.center)
+            Text(user!.recordings["1"]!, textAlign: TextAlign.center)
           ],
         ),
         actions: [
@@ -132,9 +148,17 @@ class _CallPageState extends State<CallPage> {
           ),
           CupertinoDialogAction(
             isDestructiveAction: true,
-            onPressed: () async {
+            onPressed: () {
               Navigator.pop(context);
-              popRoute();
+              setState(() {
+                user = null;
+                isRecording = false;
+              });
+              widget.setCurrentPageIndex(0);
+              Future.delayed(Duration(milliseconds: 100), () {
+                speech.stop();
+                speech.cancel();
+              });
             },
             child: const Text('End Call'),
           ),
@@ -145,15 +169,13 @@ class _CallPageState extends State<CallPage> {
 
   void _determineWhatToPlay(inputText) {
     try {
-      if (!isPlayingARecording) {
+      if (!isPlayingARecording && isMutedFrontEnd == false) {
         if (inputText != "<Pause>") {
-          print(inputText);
           int selectedId = 1;
           _audioPlayer.play(
             kIsWeb
-                ? UrlSource(widget.user.recordings[selectedId.toString()]!)
-                : DeviceFileSource(
-                    widget.user.recordings[selectedId.toString()]!),
+                ? UrlSource(user!.recordings[selectedId.toString()]!)
+                : DeviceFileSource(user!.recordings[selectedId.toString()]!),
           );
           setState(() {
             isPlayingARecording = true;
@@ -169,9 +191,7 @@ class _CallPageState extends State<CallPage> {
 
   @override
   void dispose() {
-    setState(() {
-      isRecording = false;
-    });
+    isRecording = false;
     _audioPlayer.dispose();
     super.dispose();
   }
@@ -185,6 +205,18 @@ class _CallPageState extends State<CallPage> {
           padding: const EdgeInsets.all(35),
           child: const TextFont(
             text: "Please enable microphone to continue.",
+            textAlign: TextAlign.center,
+            maxLines: 10,
+          ),
+        ),
+      );
+    }
+    if (user == null) {
+      return Center(
+        child: Container(
+          padding: const EdgeInsets.all(35),
+          child: const TextFont(
+            text: "No user selected.",
             textAlign: TextAlign.center,
             maxLines: 10,
           ),
@@ -236,18 +268,19 @@ class _CallPageState extends State<CallPage> {
               borderRadius: BorderRadius.circular(50),
               minSize: 65,
               padding: EdgeInsets.zero,
-              color: !isMuted ? getColor(context, "gray") : Colors.white,
+              color:
+                  !isMutedFrontEnd ? getColor(context, "gray") : Colors.white,
               onPressed: () {
                 speech.cancel();
                 setState(() {
-                  isMuted = !isMuted;
+                  isMutedFrontEnd = !isMutedFrontEnd;
                 });
               },
               child: Icon(
-                !isMuted
+                !isMutedFrontEnd
                     ? CupertinoIcons.mic_fill
                     : CupertinoIcons.mic_slash_fill,
-                color: !isMuted ? Colors.white : Colors.grey,
+                color: !isMutedFrontEnd ? Colors.white : Colors.grey,
                 size: 24,
               ),
             ),
@@ -293,7 +326,9 @@ class _CallPageState extends State<CallPage> {
           borderRadius: BorderRadius.circular(10),
           child: SizedBox(
             width: 110,
-            child: CameraView(isFacingFront: isFacingFront),
+            child: isRecording == true && user != null
+                ? CameraView(isFacingFront: isFacingFront)
+                : const SizedBox.shrink(),
           ),
         ),
       ),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:animations/animations.dart';
 import 'package:camera/camera.dart';
+import 'package:capstone/pages/CallPage.dart';
 import 'package:capstone/pages/CameraView.dart';
 import 'package:capstone/pages/Home.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
@@ -194,7 +195,46 @@ class Home extends StatelessWidget {
       theme: CupertinoThemeData(
         brightness: MediaQuery.of(context).platformBrightness,
       ),
-      home: const HomePage(),
+      home: const NavigationStack(),
+    );
+  }
+}
+
+class NavigationStack extends StatefulWidget {
+  const NavigationStack({super.key});
+
+  @override
+  State<NavigationStack> createState() => _NavigationStackState();
+}
+
+class _NavigationStackState extends State<NavigationStack> {
+  int currentPageIndex = 0;
+  User? user;
+
+  _setUser(User userPassed) {
+    setState(() {
+      user = userPassed;
+    });
+    currentPageIndex = 1;
+  }
+
+  _setCurrentPageIndex(int indexPassed) {
+    setState(() {
+      currentPageIndex = indexPassed;
+      if (indexPassed == 0) {
+        user = null;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IndexedStack(
+      index: currentPageIndex,
+      children: [
+        HomePage(setUser: _setUser),
+        CallPage(user: user, setCurrentPageIndex: _setCurrentPageIndex),
+      ],
     );
   }
 }

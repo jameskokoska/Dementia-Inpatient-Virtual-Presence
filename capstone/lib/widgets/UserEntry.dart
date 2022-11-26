@@ -9,9 +9,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class UserEntry extends StatelessWidget {
-  const UserEntry({required this.user, super.key});
+  const UserEntry({required this.user, required this.setUser, super.key});
 
   final User user;
+  final Function(User) setUser;
 
   @override
   Widget build(BuildContext context) {
@@ -61,16 +62,18 @@ class UserEntry extends StatelessWidget {
       onDismissed: (DismissDirection direction) {},
       child: CupertinoButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            CupertinoPageRoute<Widget>(
-              builder: (BuildContext context) {
-                return CallPage(
-                  user: user,
-                );
-              },
-            ),
-          );
+          // Navigator.push(
+          //   context,
+          //   CupertinoPageRoute<Widget>(
+          //     builder: (BuildContext context) {
+          //       return CallPage(
+          //         key: ValueKey(user.id),
+          //         user: user,
+          //       );
+          //     },
+          //   ),
+          // );
+          setUser(user);
         },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
