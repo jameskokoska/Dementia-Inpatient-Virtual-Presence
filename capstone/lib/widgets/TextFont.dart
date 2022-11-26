@@ -46,16 +46,13 @@ class TextFont extends StatelessWidget {
       decorationColor: Color(0x00FFFFFF),
       overflow: overflow,
     );
-    return Transform.translate(
-      offset: Offset(0, this.fontSize * 0.1),
-      child: Text(
-        "$text",
-        maxLines: maxLines,
-        textAlign: textAlign,
-        overflow: overflow ?? TextOverflow.ellipsis,
-        style: textStyle,
-        softWrap: softWrap,
-      ),
+    return Text(
+      "$text",
+      maxLines: maxLines,
+      textAlign: textAlign,
+      overflow: overflow ?? TextOverflow.ellipsis,
+      style: textStyle,
+      softWrap: softWrap,
     );
   }
 }

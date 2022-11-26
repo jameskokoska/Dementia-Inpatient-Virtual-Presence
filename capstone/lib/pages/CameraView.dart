@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
+import 'package:capstone/database/tables.dart';
+import 'package:capstone/pages/CreateUserPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,24 +12,22 @@ import '../main.dart';
 
 List<CameraDescription> cameras = [];
 
-enum ScreenMode { liveFeed, gallery }
-
 class CameraView extends StatefulWidget {
   CameraView(
       {Key? key,
+      required this.user,
       required this.title,
       required this.customPaint,
       this.text,
       required this.onImage,
-      this.onScreenModeChanged,
       this.initialDirection = CameraLensDirection.back})
       : super(key: key);
 
+  final User user;
   final String title;
   final CustomPaint? customPaint;
   final String? text;
   final Function(InputImage inputImage) onImage;
-  final Function(ScreenMode mode)? onScreenModeChanged;
   final CameraLensDirection initialDirection;
 
   @override
@@ -35,7 +35,6 @@ class CameraView extends StatefulWidget {
 }
 
 class _CameraViewState extends State<CameraView> {
-  ScreenMode _mode = ScreenMode.liveFeed;
   CameraController? _controller;
   File? _image;
   String? _path;
@@ -69,8 +68,6 @@ class _CameraViewState extends State<CameraView> {
 
     if (_cameraIndex != -1) {
       _startLiveFeed();
-    } else {
-      _mode = ScreenMode.gallery;
     }
   }
 
@@ -84,7 +81,7 @@ class _CameraViewState extends State<CameraView> {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
-        leading: Text(widget.title),
+        leading: Center(child: Text(widget.title)),
       ),
       child: Scaffold(body: _body()),
     );
@@ -125,23 +122,42 @@ class _CameraViewState extends State<CameraView> {
             ),
           ),
           if (widget.customPaint != null) widget.customPaint!,
+          // Positioned(
+          //   bottom: 100,
+          //   left: 50,
+          //   right: 50,
+          //   child: Slider(
+          //     value: zoomLevel,
+          //     min: minZoomLevel,
+          //     max: maxZoomLevel,
+          //     onChanged: (newSliderValue) {
+          //       setState(() {
+          //         zoomLevel = newSliderValue;
+          //         _controller!.setZoomLevel(zoomLevel);
+          //       });
+          //     },
+          //     divisions: (maxZoomLevel - 1).toInt() < 1
+          //         ? null
+          //         : (maxZoomLevel - 1).toInt(),
+          //   ),
+          // )
           Positioned(
-            bottom: 100,
-            left: 50,
-            right: 50,
-            child: Slider(
-              value: zoomLevel,
-              min: minZoomLevel,
-              max: maxZoomLevel,
-              onChanged: (newSliderValue) {
-                setState(() {
-                  zoomLevel = newSliderValue;
-                  _controller!.setZoomLevel(zoomLevel);
-                });
+            height: 50,
+            bottom: 10,
+            width: MediaQuery.of(context).size.width,
+            child: CupertinoButton.filled(
+              child: const Text("Record Responses"),
+              onPressed: () {
+                // pop an extra time so we dont scan the face in the background
+                Navigator.pop(context);
+                Navigator.push(context,
+                    CupertinoPageRoute<Widget>(builder: (BuildContext context) {
+                  return RecordResponse(
+                    responseId: "0",
+                    user: widget.user,
+                  );
+                }));
               },
-              divisions: (maxZoomLevel - 1).toInt() < 1
-                  ? null
-                  : (maxZoomLevel - 1).toInt(),
             ),
           )
         ],

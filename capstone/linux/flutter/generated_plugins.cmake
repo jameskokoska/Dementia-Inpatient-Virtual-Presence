@@ -3,6 +3,8 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  audioplayers_linux
+  record_linux
   sqlite3_flutter_libs
 )
 

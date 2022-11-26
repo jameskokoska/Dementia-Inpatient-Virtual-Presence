@@ -11,15 +11,19 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
 class FaceScannerPage extends StatelessWidget {
-  const FaceScannerPage({super.key});
+  const FaceScannerPage({required this.user, super.key});
+  final User user;
 
   @override
   Widget build(BuildContext context) {
-    return FaceDetectorView();
+    return FaceDetectorView(user: user);
   }
 }
 
 class FaceDetectorView extends StatefulWidget {
+  const FaceDetectorView({required this.user, super.key});
+  final User user;
+
   @override
   State<FaceDetectorView> createState() => _FaceDetectorViewState();
 }
@@ -53,6 +57,7 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
         processImage(inputImage);
       },
       initialDirection: CameraLensDirection.front,
+      user: widget.user,
     );
   }
 
