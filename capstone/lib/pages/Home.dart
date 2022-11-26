@@ -26,7 +26,7 @@ class HomePage extends StatelessWidget {
           CupertinoSliverNavigationBar(
             largeTitle: const Text('Home'),
             trailing: CupertinoButton(
-              child: const Icon(CupertinoIcons.plus_app),
+              child: const Icon(CupertinoIcons.plus),
               onPressed: () {
                 Navigator.push(context,
                     CupertinoPageRoute<Widget>(builder: (BuildContext context) {
@@ -36,72 +36,6 @@ class HomePage extends StatelessWidget {
               padding: EdgeInsets.zero,
             ),
           ),
-
-          SliverToBoxAdapter(
-            child: RecordAudio(),
-          ),
-          SliverToBoxAdapter(
-            child: CupertinoButton(
-              onPressed: () {
-                Navigator.push(context,
-                    CupertinoPageRoute<Widget>(builder: (BuildContext context) {
-                  return FaceScannerPage();
-                }));
-              },
-              child: Container(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Icon(CupertinoIcons.camera),
-                    Text("Scan Face"),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: CupertinoButton(
-              onPressed: () {
-                Navigator.push(context,
-                    CupertinoPageRoute<Widget>(builder: (BuildContext context) {
-                  return Model();
-                }));
-              },
-              child: Container(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Icon(CupertinoIcons.camera),
-                    Text("Model"),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // SliverToBoxAdapter(
-          //   child: RecordAudio(),
-          // ),
-          // SliverToBoxAdapter(
-          //   child: CupertinoButton(
-          //     onPressed: () {
-          //       Navigator.push(context,
-          //           CupertinoPageRoute<Widget>(builder: (BuildContext context) {
-          //         return FaceScannerPage();
-          //       }));
-          //     },
-          //     child: Container(
-          //       child: Column(
-          //         mainAxisAlignment: MainAxisAlignment.end,
-          //         children: <Widget>[
-          //           Icon(CupertinoIcons.camera),
-          //           Text("Scan Face"),
-          //         ],
-          //       ),
-          //     ),
-          //   ),
-          // ),
-
           StreamBuilder<List<User>>(
             stream: database.watchUsers(),
             builder: (context, snapshot) {

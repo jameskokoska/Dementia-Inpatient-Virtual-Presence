@@ -47,7 +47,6 @@ dependencies:
   record: ^4.4.3
   audioplayers: ^1.1.1
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -74,6 +73,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/model2/
+    - assets/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

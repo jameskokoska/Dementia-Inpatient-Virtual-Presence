@@ -3,6 +3,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:camera/camera.dart';
 import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
+import 'package:capstone/pages/Model.dart';
 import 'package:capstone/widgets/CameraView.dart';
 import 'package:capstone/widgets/TextFont.dart';
 import 'package:flutter/foundation.dart';
@@ -210,6 +211,23 @@ class _CallPageState extends State<CallPage> {
           ),
         ),
       );
+    } else {
+      centerContent = Stack(children: [
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage('assets/bg.jpg') as ImageProvider,
+                fit: BoxFit.cover),
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 105),
+            child: Model(),
+          ),
+        ),
+      ]);
     }
     if (user == null) {
       return Center(
@@ -306,7 +324,8 @@ class _CallPageState extends State<CallPage> {
         ? Positioned(
             bottom: 145,
             width: MediaQuery.of(context).size.width,
-            child: Padding(
+            child: Container(
+              color: getColor(context, "lightDark"),
               padding: const EdgeInsets.only(
                   left: 8.0, right: 8.0, top: 5, bottom: 9),
               child: TextFont(
@@ -338,8 +357,8 @@ class _CallPageState extends State<CallPage> {
       child: CupertinoPageScaffold(
         child: Stack(
           children: [
-            cameraView,
             centerContent,
+            cameraView,
             bottomButtons,
             recognizedText,
           ],
