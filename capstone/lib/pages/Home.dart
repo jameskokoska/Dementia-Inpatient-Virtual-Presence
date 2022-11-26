@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:capstone/database/tables.dart';
 import 'package:capstone/pages/CreateUserPage.dart';
 import 'package:capstone/pages/Face%20Scanner.dart';
+import 'package:capstone/pages/Model.dart';
 import 'package:capstone/pages/RecordAudio.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/TextFont.dart';
@@ -35,6 +36,49 @@ class HomePage extends StatelessWidget {
               padding: EdgeInsets.zero,
             ),
           ),
+
+          SliverToBoxAdapter(
+            child: RecordAudio(),
+          ),
+          SliverToBoxAdapter(
+            child: CupertinoButton(
+              onPressed: () {
+                Navigator.push(context,
+                    CupertinoPageRoute<Widget>(builder: (BuildContext context) {
+                  return FaceScannerPage();
+                }));
+              },
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Icon(CupertinoIcons.camera),
+                    Text("Scan Face"),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: CupertinoButton(
+              onPressed: () {
+                Navigator.push(context,
+                    CupertinoPageRoute<Widget>(builder: (BuildContext context) {
+                  return Model();
+                }));
+              },
+              child: Container(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Icon(CupertinoIcons.camera),
+                    Text("Model"),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
           // SliverToBoxAdapter(
           //   child: RecordAudio(),
           // ),
@@ -57,6 +101,7 @@ class HomePage extends StatelessWidget {
           //     ),
           //   ),
           // ),
+
           StreamBuilder<List<User>>(
             stream: database.watchUsers(),
             builder: (context, snapshot) {
