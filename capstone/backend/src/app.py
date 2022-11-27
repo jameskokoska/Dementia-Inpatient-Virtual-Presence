@@ -5,6 +5,7 @@ from sklearn.ensemble import RandomForestClassifier
 from nltk.stem import WordNetLemmatizer
 from flask import Flask, request, jsonify
 from flask_restful import Api, Resource
+import json
 
 stemmer = WordNetLemmatizer()
 
@@ -89,24 +90,23 @@ prev = {
 
 
 class Responder(Resource):
-
-    def get(self):
-        s = request.args.get("input_text")
-
-        try:
-            tp = model.classify(s)
-            index = -1
-            while True:
-                i = random.randint(0,len(responses[tp])-1)
-                if i != prev[tp]:
-                    index = i
-                    break
-
-            resp = jsonify({"response_id":index})
-            resp.status_code = 200
-        except ...:
-            pass
-
+    def post(self):
+        print(request.data)
+        s = json.loads(request.data.decode('utf8'))["input_text"]
+        print("input_text:",s)
+        tp = model.classify(s)
+        index = -1
+        while True:
+            i = random.randint(0,len(responses[tp])-1)
+            if i != prev[tp]:
+                print(tp)
+                index = i
+                prev[tp] = i
+                break
+        print(index)
+        index = responses[tp][index]
+        resp = jsonify({"response_id":index})
+        resp.status_code = 200
         return resp
 
 
