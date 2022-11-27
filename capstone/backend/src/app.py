@@ -7,6 +7,9 @@ from flask import Flask, request, jsonify
 from flask_restful import Api, Resource
 import json
 
+# set FLASK_APP=app.py
+# flask run --host=0.0.0.0
+
 stemmer = WordNetLemmatizer()
 
 def clean(document):

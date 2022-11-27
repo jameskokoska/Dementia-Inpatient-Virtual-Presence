@@ -10,6 +10,27 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/cupertino.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'package:http/http.dart' as http;
+
+Future<String> getResponse(String inputText) async {
+  String url = 'http://192.168.2.37:5000/response';
+
+  Map data = {'input_text': inputText};
+  String body = json.encode(data);
+  print(body);
+
+  var response = await http.post(
+    Uri.parse(url),
+    headers: {"Content-Type": "application/json"},
+    body: body,
+  );
+  print("${response.statusCode}");
+  print("${response.body}");
+  return json.decode(response.body)["response_id"].toString();
+}
 
 class CallPage extends StatefulWidget {
   const CallPage(
@@ -29,6 +50,7 @@ class _CallPageState extends State<CallPage> {
   bool isMuted = false;
   bool isMutedFrontEnd = false;
   String lastRecognizedText = "";
+  String responseText = "";
   String lastStatus = "";
   bool isFacingFront = true;
   bool isPlayingARecording = false;
@@ -45,6 +67,7 @@ class _CallPageState extends State<CallPage> {
         isPlayingARecording = false;
         isMuted = false;
         isMutedFrontEnd = false;
+        responseText = "";
       });
     }
   }
@@ -168,19 +191,22 @@ class _CallPageState extends State<CallPage> {
     );
   }
 
-  void _determineWhatToPlay(inputText) {
+  void _determineWhatToPlay(inputText) async {
     try {
       if (!isPlayingARecording && isMutedFrontEnd == false) {
         if (inputText != "<Pause>") {
-          int selectedId = 1;
+          String selectedId = await getResponse(inputText);
+          print(selectedId);
+          print("RESPONSE:" + responses[selectedId]!);
           _audioPlayer.play(
             kIsWeb
-                ? UrlSource(user!.recordings[selectedId.toString()]!)
-                : DeviceFileSource(user!.recordings[selectedId.toString()]!),
+                ? UrlSource(user!.recordings[selectedId]!)
+                : DeviceFileSource(user!.recordings[selectedId]!),
           );
           setState(() {
             isPlayingARecording = true;
             isMuted = true;
+            lastRecognizedText = responses[selectedId] ?? "";
           });
           speech.cancel();
         }
@@ -336,6 +362,22 @@ class _CallPageState extends State<CallPage> {
             ),
           )
         : const SizedBox.shrink();
+    Widget responseTextWidget = responseText != ""
+        ? Positioned(
+            bottom: 145,
+            width: MediaQuery.of(context).size.width,
+            child: Container(
+              color: getColor(context, "lightDark"),
+              padding: const EdgeInsets.only(
+                  left: 8.0, right: 8.0, top: 5, bottom: 9),
+              child: TextFont(
+                text: responseText,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          )
+        : const SizedBox.shrink();
     Widget cameraView = Align(
       alignment: Alignment.topRight,
       child: Padding(
@@ -361,6 +403,7 @@ class _CallPageState extends State<CallPage> {
             cameraView,
             bottomButtons,
             recognizedText,
+            responseTextWidget,
           ],
         ),
       ),

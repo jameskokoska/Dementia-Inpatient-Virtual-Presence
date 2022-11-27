@@ -69,6 +69,7 @@ class _ModelState extends State<Model> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Cube(
       onSceneCreated: _onSceneCreated,
+      interactive: false,
     );
   }
 }
