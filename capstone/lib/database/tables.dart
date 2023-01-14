@@ -25,6 +25,21 @@ String? determineNextId(currentId) {
   }
 }
 
+String? determinePrevId(currentId) {
+  try {
+    int currentIndex = 0;
+    for (String key in responses.keys) {
+      if (key == currentId) {
+        break;
+      }
+      currentIndex++;
+    }
+    return responses.keys.toList()[currentIndex - 1];
+  } catch (e) {
+    return null;
+  }
+}
+
 Map<String, String> responses = {
   "0": "How are you doing today?",
   "1": "Do you know where you are?",

@@ -40,6 +40,7 @@ class HomePage extends StatelessWidget {
             stream: database.watchUsers(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
+                print(snapshot.data);
                 if (snapshot.data!.length <= 0) {
                   return SliverToBoxAdapter(
                     child: Padding(
