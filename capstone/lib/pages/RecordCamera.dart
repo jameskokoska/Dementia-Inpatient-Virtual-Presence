@@ -42,7 +42,10 @@ class _RecordCameraState extends State<RecordCamera> {
       final file = await _cameraController.stopVideoRecording();
       setState(() => _isRecording = false);
       final route = CupertinoPageRoute<Widget>(builder: (BuildContext context) {
-        return PlayBackVideo(filePath: file.path);
+        return PlayBackVideo(
+          filePath: file.path,
+          isLooping: true,
+        );
       });
       Navigator.push(context, route);
     } else {

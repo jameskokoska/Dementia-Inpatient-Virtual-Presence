@@ -277,8 +277,33 @@ class _RecordResponseState extends State<RecordResponse> {
                     ),
                   )
                 : recordingPath != null
-                    ? PlayBackVideo(filePath: recordingPath!)
-                    : CameraPreview(_cameraController),
+                    ? PlayBackVideo(
+                        filePath: recordingPath!,
+                        isLooping: true,
+                      )
+                    : Stack(
+                        children: [
+                          CameraPreview(_cameraController),
+                          Transform.translate(
+                            offset: Offset(0, -50),
+                            child: Transform.scale(
+                              scale: 1,
+                              child: Opacity(
+                                opacity: 0.5,
+                                child: Container(
+                                  decoration: const BoxDecoration(
+                                    image: DecorationImage(
+                                      image:
+                                          AssetImage('assets/PersonOutline.png')
+                                              as ImageProvider,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
             Align(
               alignment: Alignment.bottomCenter,
               child: Padding(
