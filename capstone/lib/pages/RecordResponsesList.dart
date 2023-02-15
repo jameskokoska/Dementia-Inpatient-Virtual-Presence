@@ -1,5 +1,6 @@
 import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
+import 'package:capstone/pages/RecordResponse.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/RecordResponseEntry.dart';
 import 'package:capstone/widgets/TextFont.dart';
@@ -48,6 +49,22 @@ class _RecordResponsesListState extends State<RecordResponsesList> {
                 CupertinoSliverNavigationBar(
                   largeTitle: Text(name),
                   previousPageTitle: "Home",
+                  trailing: CupertinoButton(
+                    onPressed: () async {
+                      bool result =
+                          await confirmDelete(context, "Delete user?");
+                      if (result == true) {
+                        await database.deleteUser(user.id);
+                        Navigator.pop(context);
+                      }
+                    },
+                    padding: const EdgeInsets.only(
+                        left: 14, right: 7, top: 12, bottom: 12),
+                    child: const Icon(
+                      CupertinoIcons.delete,
+                      size: 20,
+                    ),
+                  ),
                 ),
                 for (String category in responses.keys)
                   SliverToBoxAdapter(

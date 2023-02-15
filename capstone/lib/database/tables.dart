@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:capstone/pages/RecordResponse.dart';
 import 'package:drift/drift.dart';
 export 'platform/shared.dart';
 part 'tables.g.dart';
@@ -120,7 +121,16 @@ class PatientsDatabase extends _$PatientsDatabase {
         .watchSingle();
   }
 
-  Future deleteUser(int id) {
+  Future deleteUser(int id) async {
+    User user = await getUser(id);
+    Map<String, String> recordings = user.recordings;
+    for (String recordingKey in recordings.keys) {
+      try {
+        await deleteVideo(null, recordings[recordingKey] ?? "");
+      } catch (e) {
+        print(e.toString());
+      }
+    }
     return (delete(users)..where((user) => user.id.equals(id))).go();
   }
 }

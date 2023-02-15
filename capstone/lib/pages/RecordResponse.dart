@@ -64,7 +64,6 @@ class _RecordResponseState extends State<RecordResponse> {
   Future<void> _recordVideo() async {
     if (_isRecording) {
       final file = await _cameraController.stopVideoRecording();
-      setState(() => _isRecording = false);
       setState(() {
         recordingPath = file.path;
         _isRecording = false;
@@ -78,9 +77,7 @@ class _RecordResponseState extends State<RecordResponse> {
 
   Future<void> _deleteVideo() async {
     try {
-      final file = File(recordingPath!);
-      await file.delete();
-      showCupertinoSnackBar(context: context, message: "Deleted recording.");
+      deleteVideo(context, recordingPath!);
       setState(() {
         recordingPath = null;
       });
@@ -230,4 +227,49 @@ class _RecordResponseState extends State<RecordResponse> {
       ),
     );
   }
+}
+
+Future<bool> deleteVideo(context, String recordingPath) async {
+  if (context == null) {
+    final file = File(recordingPath);
+    await file.delete();
+    print("Deleted" + recordingPath);
+    return true;
+  } else {
+    bool result = await confirmDelete(context, "Delete recording?");
+    if (result == true) {
+      final file = File(recordingPath);
+      await file.delete();
+      showCupertinoSnackBar(context: context, message: "Deleted recording.");
+      print("Deleted" + recordingPath);
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
+
+Future<bool> confirmDelete(context, String message) async {
+  bool result = await showCupertinoDialog(
+    context: context,
+    builder: (context) => CupertinoAlertDialog(
+      title: Text(message),
+      actions: [
+        CupertinoDialogAction(
+          onPressed: () {
+            Navigator.pop(context, false);
+          },
+          child: const Text('Cancel'),
+        ),
+        CupertinoDialogAction(
+          isDestructiveAction: true,
+          onPressed: () {
+            Navigator.pop(context, true);
+          },
+          child: const Text('Delete'),
+        ),
+      ],
+    ),
+  );
+  return result;
 }
