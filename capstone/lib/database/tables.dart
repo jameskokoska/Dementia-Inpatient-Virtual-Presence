@@ -61,6 +61,7 @@ Map<String, String> responses = {
   "16": "You must be feeling very scared right now. ",
   "17": "Tell me about your friends in school.",
   "18": "Tell me about your children.",
+  "idle": "Keep your head in the outline and act like you are listening."
 };
 
 class MapInColumnConverter extends TypeConverter<Map<String, String>, String> {

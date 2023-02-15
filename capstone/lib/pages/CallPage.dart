@@ -245,7 +245,7 @@ class _CallPageState extends State<CallPage> {
             padding: EdgeInsets.only(bottom: 105),
             child: PlayBackVideo(
               key: ValueKey(2),
-              filePath: user!.recordings["0"]!,
+              filePath: user!.recordings["idle"]!,
               isLooping: true,
               volume: 0,
               initializeFirst: false,
@@ -256,26 +256,24 @@ class _CallPageState extends State<CallPage> {
           alignment: Alignment.bottomCenter,
           child: Padding(
               padding: EdgeInsets.only(bottom: 105),
-              child: AnimatedSwitcher(
-                  duration: Duration(milliseconds: 200),
-                  child: isPlayingARecording == true &&
-                          selectedId != null &&
-                          user!.recordings[selectedId] != null
-                      ? PlayBackVideo(
-                          key: const ValueKey(1),
-                          filePath: user!.recordings[selectedId]!,
-                          isLooping: false,
-                          onFinishPlayback: () {
-                            setState(() {
-                              isPlayingARecording = false;
-                              isMuted = false;
-                            });
-                          },
-                        )
-                      : Container(
-                          color: Colors.transparent,
-                          key: const ValueKey(2),
-                        ))),
+              child: isPlayingARecording == true &&
+                      selectedId != null &&
+                      user!.recordings[selectedId] != null
+                  ? PlayBackVideo(
+                      key: const ValueKey(1),
+                      filePath: user!.recordings[selectedId]!,
+                      isLooping: false,
+                      onFinishPlayback: () {
+                        setState(() {
+                          isPlayingARecording = false;
+                          isMuted = false;
+                        });
+                      },
+                    )
+                  : Container(
+                      color: Colors.transparent,
+                      key: const ValueKey(2),
+                    )),
         ),
       ]);
     }

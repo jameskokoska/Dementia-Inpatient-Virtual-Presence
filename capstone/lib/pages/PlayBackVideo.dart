@@ -74,7 +74,9 @@ class _PlayBackVideoState extends State<PlayBackVideo> {
     if (widget.initializeFirst == false) {
       return CupertinoPageScaffold(
         child: AspectRatio(
-          aspectRatio: _videoPlayerController.value.aspectRatio,
+          aspectRatio: _videoPlayerController.value.aspectRatio == 1
+              ? 9 / 16
+              : _videoPlayerController.value.aspectRatio,
           child: VideoPlayer(_videoPlayerController),
         ),
       );
