@@ -6,6 +6,7 @@ import 'package:capstone/pages/CreateUserPage.dart';
 import 'package:capstone/pages/Face%20Scanner.dart';
 import 'package:capstone/pages/Model.dart';
 import 'package:capstone/pages/RecordAudio.dart';
+import 'package:capstone/pages/RecordResponsesList.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/TextFont.dart';
 import 'package:capstone/widgets/UserEntry.dart';
@@ -69,24 +70,18 @@ class HomePage extends StatelessWidget {
                   );
                 }
                 return SliverPadding(
-                  padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (BuildContext context, int index) {
-                        if (index == 0) {
-                          return const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: Center(
-                              child: TextFont(
-                                text: "Tap a user to start a call",
-                                textAlign: TextAlign.center,
-                                fontSize: 14,
-                              ),
-                            ),
+                        if (index == snapshot.data?.length) {
+                          return const HintText(
+                            text: "Tap a user to start a call",
                           );
                         }
                         return UserEntry(
-                            user: snapshot.data![index - 1], setUser: setUser);
+                            user: snapshot.data![index], setUser: setUser);
                       },
                       childCount: (snapshot.data?.length)! + 1,
                     ),

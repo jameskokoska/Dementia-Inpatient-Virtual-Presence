@@ -56,3 +56,25 @@ class TextFont extends StatelessWidget {
     );
   }
 }
+
+class HintText extends StatelessWidget {
+  const HintText({required this.text, super.key});
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Flexible(
+        child: TextFont(
+          text: text,
+          fontSize: 12,
+          maxLines: 5,
+          textAlign: TextAlign.center,
+          textColor: getColor(context, "black").withOpacity(0.3),
+        ),
+      ),
+    );
+  }
+}

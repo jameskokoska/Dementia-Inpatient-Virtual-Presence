@@ -150,13 +150,13 @@ class _CameraViewState extends State<CameraView> {
               onPressed: () {
                 // pop an extra time so we dont scan the face in the background
                 Navigator.pop(context);
-                Navigator.push(context,
-                    CupertinoPageRoute<Widget>(builder: (BuildContext context) {
-                  return RecordResponse(
-                    responseId: "0",
-                    user: widget.user,
-                  );
-                }));
+                // Navigator.push(context,
+                //     CupertinoPageRoute<Widget>(builder: (BuildContext context) {
+                //   // return RecordResponse(
+                //   //   responseId: "0",
+                //   //   user: widget.user,
+                //   // );
+                // }));
               },
             ),
           )

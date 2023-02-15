@@ -3,6 +3,7 @@ import 'package:capstone/database/tables.dart';
 import 'package:capstone/main.dart';
 import 'package:capstone/pages/CallPage.dart';
 import 'package:capstone/pages/Face%20Scanner.dart';
+import 'package:capstone/pages/RecordResponsesList.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/TextFont.dart';
 import 'package:flutter/cupertino.dart';
@@ -61,6 +62,7 @@ class UserEntry extends StatelessWidget {
       key: ValueKey<int>(this.user.id),
       onDismissed: (DismissDirection direction) {},
       child: CupertinoButton(
+        padding: const EdgeInsets.only(left: 15, top: 10, bottom: 10, right: 0),
         onPressed: () {
           // Navigator.push(
           //   context,
@@ -97,24 +99,43 @@ class UserEntry extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 13),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                TextFont(
-                  text: user.name,
-                  fontWeight: FontWeight.bold,
-                  textColor: getColor(context, "black"),
-                  fontSize: 20,
-                ),
-                user.description != ""
-                    ? TextFont(
-                        text: user.description,
-                        textColor: getColor(context, "black"),
-                        fontSize: 16,
-                      )
-                    : SizedBox.shrink(),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  TextFont(
+                    text: user.name,
+                    fontWeight: FontWeight.bold,
+                    textColor: getColor(context, "black"),
+                    fontSize: 20,
+                  ),
+                  user.description != ""
+                      ? TextFont(
+                          text: user.description,
+                          textColor: getColor(context, "black"),
+                          fontSize: 16,
+                        )
+                      : SizedBox.shrink(),
+                ],
+              ),
             ),
+            CupertinoButton(
+              onPressed: () {
+                Navigator.push(context,
+                    CupertinoPageRoute<Widget>(builder: (BuildContext context) {
+                  return RecordResponsesList(
+                    userID: user.id,
+                    isEditing: true,
+                  );
+                }));
+              },
+              padding:
+                  EdgeInsets.only(left: 14, right: 15, top: 12, bottom: 12),
+              child: const Icon(
+                CupertinoIcons.ellipsis_circle,
+                size: 25,
+              ),
+            )
           ],
         ),
       ),

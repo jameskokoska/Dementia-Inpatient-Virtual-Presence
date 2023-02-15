@@ -197,7 +197,7 @@ class _CallPageState extends State<CallPage> {
         if (inputText != "<Pause>") {
           String selectedId = await getResponse(inputText);
           print(selectedId);
-          print("RESPONSE:" + responses[selectedId]!);
+          // print("RESPONSE:" + responses[selectedId]!);
           _audioPlayer.play(
             kIsWeb
                 ? UrlSource(user!.recordings[selectedId]!)
@@ -206,7 +206,7 @@ class _CallPageState extends State<CallPage> {
           setState(() {
             isPlayingARecording = true;
             isMuted = true;
-            lastRecognizedText = responses[selectedId] ?? "";
+            lastRecognizedText = "";
           });
           speech.cancel();
         }
