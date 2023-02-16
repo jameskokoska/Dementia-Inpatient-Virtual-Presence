@@ -1,11 +1,8 @@
 import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
-import 'package:capstone/main.dart';
-import 'package:capstone/pages/CallPage.dart';
 import 'package:capstone/pages/RecordResponse.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/Snackbar.dart';
-import 'package:capstone/widgets/TextFont.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -43,8 +40,7 @@ class RecordResponseEntry extends StatelessWidget {
         onPressed: () async {
           if (complete) {
             try {
-              bool result =
-                  await deleteVideo(context, user.recordings[responseID]!);
+              await deleteVideo(context, user.recordings[responseID]!);
             } catch (e) {
               showCupertinoSnackBar(context: context, message: e.toString());
             }

@@ -13,7 +13,7 @@ Color getColor(context, colorID) {
     ],
     "completeGreen": [
       const Color(0xFF54BC59),
-      Color(0xFF4FB654),
+      const Color(0xFF4FB654),
     ],
     "incompleteRed": [Colors.red, const Color(0xFFBD382F)],
   };

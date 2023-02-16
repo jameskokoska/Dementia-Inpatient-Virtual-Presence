@@ -1,15 +1,9 @@
-import 'dart:async';
-import 'dart:typed_data';
-
 import 'package:capstone/database/tables.dart';
 import 'package:capstone/pages/CreateUserPage.dart';
-import 'package:capstone/pages/RecordResponsesList.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/TextFont.dart';
 import 'package:capstone/widgets/UserEntry.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:mic_stream/mic_stream.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({required this.setUser, super.key});
@@ -24,21 +18,21 @@ class HomePage extends StatelessWidget {
           CupertinoSliverNavigationBar(
             largeTitle: const Text('Home'),
             trailing: CupertinoButton(
-              child: const Icon(CupertinoIcons.plus),
               onPressed: () {
                 Navigator.push(context,
                     CupertinoPageRoute<Widget>(builder: (BuildContext context) {
-                  return CreateUserPage();
+                  return const CreateUserPage();
                 }));
               },
               padding: EdgeInsets.zero,
+              child: const Icon(CupertinoIcons.plus),
             ),
           ),
           StreamBuilder<List<User>>(
             stream: database.watchUsers(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                print(snapshot.data);
+                // print(snapshot.data);
                 if (snapshot.data!.length <= 0) {
                   return SliverToBoxAdapter(
                     child: Padding(

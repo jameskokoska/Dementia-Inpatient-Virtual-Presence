@@ -1,7 +1,5 @@
 import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
-import 'package:capstone/main.dart';
-import 'package:capstone/pages/CallPage.dart';
 import 'package:capstone/pages/RecordResponsesList.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/TextFont.dart';
@@ -39,20 +37,21 @@ class UserEntry extends StatelessWidget {
             title: Text('Delete ${user.name} ?'),
             actions: [
               CupertinoDialogAction(
-                child: Text('Cancel'),
+                child: const Text('Cancel'),
                 onPressed: () {
                   Navigator.of(context).pop(false);
                 },
               ),
               CupertinoDialogAction(
-                child: Text('Delete'),
                 isDestructiveAction: true,
                 onPressed: () async {
                   Navigator.of(context).pop(true);
-                  await Future.delayed(Duration(milliseconds: 500), () async {
+                  await Future.delayed(const Duration(milliseconds: 500),
+                      () async {
                     await database.deleteUser(user.id);
                   });
                 },
+                child: const Text('Delete'),
               ),
             ],
           ),
@@ -114,7 +113,7 @@ class UserEntry extends StatelessWidget {
                           textColor: getColor(context, "black"),
                           fontSize: 16,
                         )
-                      : SizedBox.shrink(),
+                      : const SizedBox.shrink(),
                 ],
               ),
             ),
@@ -128,8 +127,8 @@ class UserEntry extends StatelessWidget {
                   );
                 }));
               },
-              padding:
-                  EdgeInsets.only(left: 14, right: 15, top: 12, bottom: 12),
+              padding: const EdgeInsets.only(
+                  left: 14, right: 15, top: 12, bottom: 12),
               child: const Icon(
                 CupertinoIcons.ellipsis_circle,
                 size: 25,

@@ -19,7 +19,7 @@ void showCupertinoSnackBar({
     Duration(milliseconds: duration + 2 * animationDuration),
     overlayEntry.remove,
   );
-  Overlay.of(Navigator.of(context).context)!.insert(overlayEntry);
+  Overlay.of(Navigator.of(context).context).insert(overlayEntry);
 }
 
 class _CupertinoSnackBar extends StatefulWidget {

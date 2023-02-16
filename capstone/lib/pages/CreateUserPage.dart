@@ -1,16 +1,7 @@
-import 'dart:io';
-
-import 'package:camera/camera.dart';
-import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
-import 'package:capstone/pages/PlayBackVideo.dart';
 import 'package:capstone/pages/RecordResponsesList.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
-import 'package:capstone/widgets/TextFont.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:record/record.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 final _formKey = GlobalKey<FormState>();
 

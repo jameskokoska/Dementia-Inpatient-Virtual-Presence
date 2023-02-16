@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
 import 'package:capstone/widgets/CameraView.dart';
 import 'package:capstone/widgets/TextFont.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/cupertino.dart';
@@ -16,15 +14,15 @@ Future<String> getResponse(String inputText) async {
 
   Map data = {'input_text': inputText};
   String body = json.encode(data);
-  print(body);
+  debugPrint(body);
 
   var response = await http.post(
     Uri.parse(url),
     headers: {"Content-Type": "application/json"},
     body: body,
   );
-  print("${response.statusCode}");
-  print("${response.body}");
+  debugPrint("${response.statusCode}");
+  debugPrint(response.body);
   return json.decode(response.body)["response_id"].toString();
 }
 
@@ -40,8 +38,7 @@ class CallPage extends StatefulWidget {
 
 class _CallPageState extends State<CallPage> {
   stt.SpeechToText speech = stt.SpeechToText();
-  final _audioPlayer = AudioPlayer();
-  late StreamSubscription<void> _playerStateChangedSubscription;
+  // final _audioPlayer = AudioPlayer();
   bool isRecording = false;
   bool isMuted = false;
   bool isMutedFrontEnd = false;
@@ -71,14 +68,13 @@ class _CallPageState extends State<CallPage> {
   @override
   void initState() {
     super.initState();
-    _playerStateChangedSubscription =
-        _audioPlayer.onPlayerComplete.listen((state) async {
-      await _audioPlayer.stop();
-      setState(() {
-        isPlayingARecording = false;
-        isMuted = false;
-      });
-    });
+    // _audioPlayer.onPlayerComplete.listen((state) async {
+    //   await _audioPlayer.stop();
+    //   setState(() {
+    //     isPlayingARecording = false;
+    //     isMuted = false;
+    //   });
+    // });
     Future.delayed(Duration.zero, () async {
       bool available = await speech.initialize(
         onStatus: (status) {
@@ -175,7 +171,7 @@ class _CallPageState extends State<CallPage> {
                 isRecording = false;
               });
               widget.setCurrentPageIndex(0);
-              Future.delayed(Duration(milliseconds: 100), () {
+              Future.delayed(const Duration(milliseconds: 100), () {
                 speech.stop();
                 speech.cancel();
               });
@@ -192,13 +188,13 @@ class _CallPageState extends State<CallPage> {
       if (!isPlayingARecording && isMutedFrontEnd == false) {
         if (inputText != "<Pause>") {
           String selectedId = await getResponse(inputText);
-          print(selectedId);
-          // print("RESPONSE:" + responses[selectedId]!);
-          _audioPlayer.play(
-            kIsWeb
-                ? UrlSource(user!.recordings[selectedId]!)
-                : DeviceFileSource(user!.recordings[selectedId]!),
-          );
+          debugPrint(selectedId);
+          // debugPrint("RESPONSE:" + responses[selectedId]!);
+          // _audioPlayer.play(
+          //   kIsWeb
+          //       ? UrlSource(user!.recordings[selectedId]!)
+          //       : DeviceFileSource(user!.recordings[selectedId]!),
+          // );
           setState(() {
             isPlayingARecording = true;
             isMuted = true;
@@ -208,14 +204,14 @@ class _CallPageState extends State<CallPage> {
         }
       }
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 
   @override
   void dispose() {
     isRecording = false;
-    _audioPlayer.dispose();
+    // _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -236,10 +232,9 @@ class _CallPageState extends State<CallPage> {
     } else {
       centerContent = Stack(children: [
         Container(
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             image: DecorationImage(
-                image: AssetImage('assets/bg.jpg') as ImageProvider,
-                fit: BoxFit.cover),
+                image: AssetImage('assets/bg.jpg'), fit: BoxFit.cover),
           ),
         ),
         // Align(

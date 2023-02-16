@@ -1,12 +1,9 @@
-import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
 import 'package:capstone/pages/RecordResponse.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/RecordResponseEntry.dart';
 import 'package:capstone/widgets/TextFont.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 
 final _formKey = GlobalKey<FormState>();
 

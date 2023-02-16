@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:capstone/pages/RecordResponse.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/cupertino.dart' hide Table;
 export 'platform/shared.dart';
 part 'tables.g.dart';
 
@@ -112,12 +113,12 @@ class PatientsDatabase extends _$PatientsDatabase {
     return into(users).insertOnConflictUpdate(user);
   }
 
-  Future<User> getUser(int UserID) {
-    return (select(users)..where((user) => user.id.equals(UserID))).getSingle();
+  Future<User> getUser(int userID) {
+    return (select(users)..where((user) => user.id.equals(userID))).getSingle();
   }
 
-  Stream<User> watchUser(int UserID) {
-    return (select(users)..where((user) => user.id.equals(UserID)))
+  Stream<User> watchUser(int userID) {
+    return (select(users)..where((user) => user.id.equals(userID)))
         .watchSingle();
   }
 
@@ -128,7 +129,7 @@ class PatientsDatabase extends _$PatientsDatabase {
       try {
         await deleteVideo(null, recordings[recordingKey] ?? "");
       } catch (e) {
-        print(e.toString());
+        debugPrint(e.toString());
       }
     }
     return (delete(users)..where((user) => user.id.equals(id))).go();

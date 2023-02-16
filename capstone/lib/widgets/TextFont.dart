@@ -43,11 +43,11 @@ class TextFont extends StatelessWidget {
       color: finalTextColor,
       decoration: TextDecoration.underline,
       decorationStyle: TextDecorationStyle.double,
-      decorationColor: Color(0x00FFFFFF),
+      decorationColor: const Color(0x00FFFFFF),
       overflow: overflow,
     );
     return Text(
-      "$text",
+      text,
       maxLines: maxLines,
       textAlign: textAlign,
       overflow: overflow ?? TextOverflow.ellipsis,

@@ -3,15 +3,11 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
-import 'package:capstone/pages/CreateUserPage.dart';
 import 'package:capstone/pages/PlayBackVideo.dart';
-import 'package:capstone/pages/RecordResponsesList.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/TextFont.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:record/record.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 import '../widgets/Snackbar.dart';
 
@@ -241,7 +237,7 @@ Future<bool> deleteVideo(context, String recordingPath) async {
   if (context == null) {
     final file = File(recordingPath);
     await file.delete();
-    print("Deleted" + recordingPath);
+    debugPrint("Deleted $recordingPath");
     return true;
   } else {
     bool result = await confirmDelete(context, "Delete recording?");
@@ -249,7 +245,7 @@ Future<bool> deleteVideo(context, String recordingPath) async {
       final file = File(recordingPath);
       await file.delete();
       showCupertinoSnackBar(context: context, message: "Deleted recording.");
-      print("Deleted" + recordingPath);
+      debugPrint("Deleted$recordingPath");
       return true;
     } else {
       return false;
