@@ -22,11 +22,13 @@ class RecordResponse extends StatefulWidget {
     required this.responseId,
     required this.response,
     required this.user,
+    required this.initialFilePathIfComplete,
     super.key,
   });
   final String responseId;
   final String response;
   final User user;
+  final String? initialFilePathIfComplete;
 
   @override
   State<RecordResponse> createState() => _RecordResponseState();
@@ -42,7 +44,15 @@ class _RecordResponseState extends State<RecordResponse> {
 
   @override
   void initState() {
-    _initCamera();
+    Future.delayed(Duration.zero, () async {
+      await _initCamera();
+      if (widget.initialFilePathIfComplete != null) {
+        setState(() {
+          recordingPath = widget.initialFilePathIfComplete;
+        });
+      }
+    });
+
     super.initState();
   }
 
@@ -77,7 +87,7 @@ class _RecordResponseState extends State<RecordResponse> {
 
   Future<void> _deleteVideo() async {
     try {
-      deleteVideo(context, recordingPath!);
+      deleteVideo(null, recordingPath!);
       setState(() {
         recordingPath = null;
       });
@@ -94,7 +104,6 @@ class _RecordResponseState extends State<RecordResponse> {
       currentResponseId: recordingPath ?? ""
     });
     await database.createOrUpdateUser(user);
-    Navigator.pop(context);
   }
 
   void _restartRecording() async {
@@ -106,7 +115,7 @@ class _RecordResponseState extends State<RecordResponse> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        if (recordingPath != null) _deleteVideo();
+        if (recordingPath != null) _saveNewRecording();
         return true;
       },
       child: CupertinoPageScaffold(
@@ -180,6 +189,7 @@ class _RecordResponseState extends State<RecordResponse> {
                             onPressed: () {
                               if (recordingPath != null) {
                                 _saveNewRecording();
+                                Navigator.pop(context);
                               } else if (recordingPath == null) {
                                 _recordVideo();
                               } else {

@@ -78,6 +78,8 @@ class _RecordResponsesListState extends State<RecordResponsesList> {
                             complete: user.recordings.containsKey(responseID),
                             categoryID: category,
                             user: user,
+                            initialFilePathIfComplete:
+                                user.recordings[responseID],
                           ),
                       ],
                     ),

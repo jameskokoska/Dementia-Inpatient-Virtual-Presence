@@ -10,9 +10,6 @@ import 'package:capstone/widgets/TextFont.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-// TODO if a recording path is already complete, play the preview of the reocrding
-// using initialFilePathIfComplete
-
 class RecordResponseEntry extends StatelessWidget {
   const RecordResponseEntry({
     required this.response,
@@ -49,16 +46,13 @@ class RecordResponseEntry extends StatelessWidget {
             try {
               bool result =
                   await deleteVideo(context, user.recordings[responseID]!);
-              if (result == true) {
-                User updatedUser = user;
-                updatedUser.recordings.remove(responseID);
-                database.createOrUpdateUser(updatedUser);
-                return;
-              }
             } catch (e) {
               showCupertinoSnackBar(context: context, message: e.toString());
-              return;
             }
+            User updatedUser = user;
+            updatedUser.recordings.remove(responseID);
+            database.createOrUpdateUser(updatedUser);
+            return;
           } else {
             Navigator.push(context,
                 CupertinoPageRoute<Widget>(builder: (BuildContext context) {
@@ -66,6 +60,7 @@ class RecordResponseEntry extends StatelessWidget {
                 responseId: responseID,
                 response: responses[categoryID]![responseID]!,
                 user: user,
+                initialFilePathIfComplete: initialFilePathIfComplete,
               );
             }));
           }
@@ -85,6 +80,7 @@ class RecordResponseEntry extends StatelessWidget {
             responseId: responseID,
             response: responses[categoryID]![responseID]!,
             user: user,
+            initialFilePathIfComplete: initialFilePathIfComplete,
           );
         }))
       },
