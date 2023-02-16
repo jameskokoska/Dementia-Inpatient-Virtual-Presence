@@ -1,18 +1,14 @@
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:camera/camera.dart';
 import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
-import 'package:capstone/pages/Model.dart';
 import 'package:capstone/widgets/CameraView.dart';
 import 'package:capstone/widgets/TextFont.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/cupertino.dart';
-import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 
 Future<String> getResponse(String inputText) async {
@@ -246,13 +242,13 @@ class _CallPageState extends State<CallPage> {
                 fit: BoxFit.cover),
           ),
         ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 105),
-            child: Model(),
-          ),
-        ),
+        // Align(
+        //   alignment: Alignment.bottomCenter,
+        //   child: Padding(
+        //     padding: EdgeInsets.only(bottom: 105),
+        //     child: Model(),
+        //   ),
+        // ),
       ]);
     }
     if (user == null) {

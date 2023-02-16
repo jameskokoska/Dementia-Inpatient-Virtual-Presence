@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
-import 'package:capstone/pages/CameraView.dart';
 import 'package:flutter/material.dart';
+
+List<CameraDescription> cameras = [];
 
 class CameraView extends StatefulWidget {
   const CameraView({required this.isFacingFront, Key? key}) : super(key: key);

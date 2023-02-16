@@ -3,9 +3,6 @@ import 'dart:typed_data';
 
 import 'package:capstone/database/tables.dart';
 import 'package:capstone/pages/CreateUserPage.dart';
-import 'package:capstone/pages/Face%20Scanner.dart';
-import 'package:capstone/pages/Model.dart';
-import 'package:capstone/pages/RecordAudio.dart';
 import 'package:capstone/pages/RecordResponsesList.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/TextFont.dart';

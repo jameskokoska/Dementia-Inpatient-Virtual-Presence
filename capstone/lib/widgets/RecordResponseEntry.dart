@@ -2,7 +2,6 @@ import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
 import 'package:capstone/main.dart';
 import 'package:capstone/pages/CallPage.dart';
-import 'package:capstone/pages/Face%20Scanner.dart';
 import 'package:capstone/pages/RecordResponse.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/Snackbar.dart';

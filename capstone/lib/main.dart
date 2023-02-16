@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:animations/animations.dart';
 import 'package:camera/camera.dart';
 import 'package:capstone/pages/CallPage.dart';
-import 'package:capstone/pages/CameraView.dart';
+import 'package:capstone/widgets/CameraView.dart';
 import 'package:capstone/pages/Home.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:flutter/cupertino.dart';
