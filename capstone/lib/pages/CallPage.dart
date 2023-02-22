@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
+import 'package:capstone/pages/Model.dart';
+import 'package:capstone/pages/PlayBackVideo.dart';
 import 'package:capstone/widgets/CameraView.dart';
 import 'package:capstone/widgets/TextFont.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +12,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<String> getResponse(String inputText) async {
-  String url = 'http://192.168.2.37:5000/response';
+  String url = 'http://192.168.2.98:5000/response';
 
   Map data = {'input_text': inputText};
   String body = json.encode(data);
@@ -21,8 +23,7 @@ Future<String> getResponse(String inputText) async {
     headers: {"Content-Type": "application/json"},
     body: body,
   );
-  debugPrint("${response.statusCode}");
-  debugPrint(response.body);
+  print("${response.body}");
   return json.decode(response.body)["response_id"].toString();
 }
 
@@ -38,7 +39,6 @@ class CallPage extends StatefulWidget {
 
 class _CallPageState extends State<CallPage> {
   stt.SpeechToText speech = stt.SpeechToText();
-  // final _audioPlayer = AudioPlayer();
   bool isRecording = false;
   bool isMuted = false;
   bool isMutedFrontEnd = false;
@@ -47,6 +47,7 @@ class _CallPageState extends State<CallPage> {
   String lastStatus = "";
   bool isFacingFront = true;
   bool isPlayingARecording = false;
+  String? selectedId;
   late User? user = widget.user;
 
   @override
@@ -68,13 +69,6 @@ class _CallPageState extends State<CallPage> {
   @override
   void initState() {
     super.initState();
-    // _audioPlayer.onPlayerComplete.listen((state) async {
-    //   await _audioPlayer.stop();
-    //   setState(() {
-    //     isPlayingARecording = false;
-    //     isMuted = false;
-    //   });
-    // });
     Future.delayed(Duration.zero, () async {
       bool available = await speech.initialize(
         onStatus: (status) {
@@ -187,20 +181,18 @@ class _CallPageState extends State<CallPage> {
     try {
       if (!isPlayingARecording && isMutedFrontEnd == false) {
         if (inputText != "<Pause>") {
-          String selectedId = await getResponse(inputText);
-          debugPrint(selectedId);
-          // debugPrint("RESPONSE:" + responses[selectedId]!);
-          // _audioPlayer.play(
-          //   kIsWeb
-          //       ? UrlSource(user!.recordings[selectedId]!)
-          //       : DeviceFileSource(user!.recordings[selectedId]!),
-          // );
-          setState(() {
-            isPlayingARecording = true;
-            isMuted = true;
-            lastRecognizedText = "";
-          });
-          speech.cancel();
+          String selectedIdResponse = await getResponse(inputText);
+          print(selectedIdResponse);
+          print("RESPONSE:" + responses[selectedIdResponse]!);
+          if (isPlayingARecording == false) {
+            setState(() {
+              isPlayingARecording = true;
+              isMuted = true;
+              responseText = responses[selectedIdResponse] ?? "";
+              selectedId = selectedIdResponse;
+            });
+            speech.cancel();
+          }
         }
       }
     } catch (e) {
@@ -211,13 +203,24 @@ class _CallPageState extends State<CallPage> {
   @override
   void dispose() {
     isRecording = false;
-    // _audioPlayer.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     Widget centerContent = Container();
+    if (user == null) {
+      return Center(
+        child: Container(
+          padding: const EdgeInsets.all(35),
+          child: const TextFont(
+            text: "No user selected.",
+            textAlign: TextAlign.center,
+            maxLines: 10,
+          ),
+        ),
+      );
+    }
     if (isRecording == false) {
       centerContent = Center(
         child: Container(
@@ -231,11 +234,41 @@ class _CallPageState extends State<CallPage> {
       );
     } else {
       centerContent = Stack(children: [
-        Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage('assets/bg.jpg'), fit: BoxFit.cover),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 105),
+            child: PlayBackVideo(
+              key: ValueKey(2),
+              filePath: user!.recordings["idle"]!,
+              isLooping: true,
+              volume: 0,
+              initializeFirst: false,
+            ),
           ),
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+              padding: EdgeInsets.only(bottom: 105),
+              child: isPlayingARecording == true &&
+                      selectedId != null &&
+                      user!.recordings[selectedId] != null
+                  ? PlayBackVideo(
+                      key: const ValueKey(1),
+                      filePath: user!.recordings[selectedId]!,
+                      isLooping: false,
+                      onFinishPlayback: () {
+                        setState(() {
+                          isPlayingARecording = false;
+                          isMuted = false;
+                        });
+                      },
+                    )
+                  : Container(
+                      color: Colors.transparent,
+                      key: const ValueKey(2),
+                    )),
         ),
         // Align(
         //   alignment: Alignment.bottomCenter,
@@ -246,18 +279,7 @@ class _CallPageState extends State<CallPage> {
         // ),
       ]);
     }
-    if (user == null) {
-      return Center(
-        child: Container(
-          padding: const EdgeInsets.all(35),
-          child: const TextFont(
-            text: "No user selected.",
-            textAlign: TextAlign.center,
-            maxLines: 10,
-          ),
-        ),
-      );
-    }
+
     Widget bottomButtons = Align(
       alignment: Alignment.bottomCenter,
       child: Container(
@@ -362,6 +384,7 @@ class _CallPageState extends State<CallPage> {
               padding: const EdgeInsets.only(
                   left: 8.0, right: 8.0, top: 5, bottom: 9),
               child: TextFont(
+                textColor: Colors.red,
                 text: responseText,
                 maxLines: 2,
                 textAlign: TextAlign.center,
@@ -393,8 +416,8 @@ class _CallPageState extends State<CallPage> {
             centerContent,
             cameraView,
             bottomButtons,
-            recognizedText,
-            responseTextWidget,
+            isPlayingARecording ? SizedBox.shrink() : recognizedText,
+            isPlayingARecording ? responseTextWidget : SizedBox.shrink(),
           ],
         ),
       ),
