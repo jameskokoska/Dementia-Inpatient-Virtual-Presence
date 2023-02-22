@@ -10,22 +10,22 @@ stemmer = WordNetLemmatizer()
 def clean(document):
     # Remove all the special characters
     document = re.sub(r'\W', ' ', document)
-    
+
     # remove all single characters
     document = re.sub(r'\s+[a-zA-Z]\s+', ' ', document)
-    
+
     # Remove single characters from the start
-    document = re.sub(r'\^[a-zA-Z]\s+', ' ', document) 
-    
+    document = re.sub(r'\^[a-zA-Z]\s+', ' ', document)
+
     # Substituting multiple spaces with single space
     document = re.sub(r'\s+', ' ', document, flags=re.I)
-    
+
     # Removing prefixed 'b'
     document = re.sub(r'^b\s+', '', document)
-    
+
     # Converting to Lowercase
     document = document.lower()
-    
+
     # Lemmatization
     document = document.split()
 
@@ -41,16 +41,17 @@ class AudioModel:
             self.classifier = pickle.load(f)
         with open("vectorizer.pkl", "rb") as f:
             self.vectorizer = pickle.load(f)
-    
-    def classify(self,s):
+
+    def classify(self, s):
         s = clean(s)
         X = self.vectorizer.transform([s]).toarray()
         y = self.classifier.predict(X)[0]
-        print(y)
+        debugPrint(y)
         return self.types[y]
+
 
 model = AudioModel()
 
 while True:
     s = input()
-    print(model.classify(s))
+    debugPrint(model.classify(s))

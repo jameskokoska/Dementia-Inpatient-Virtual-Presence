@@ -1,6 +1,7 @@
 import 'package:camera/camera.dart';
-import 'package:capstone/pages/CameraView.dart';
 import 'package:flutter/material.dart';
+
+List<CameraDescription> cameras = [];
 
 class CameraView extends StatefulWidget {
   const CameraView({required this.isFacingFront, Key? key}) : super(key: key);
@@ -48,10 +49,10 @@ class _CameraViewState extends State<CameraView> {
       if (e is CameraException) {
         switch (e.code) {
           case 'CameraAccessDenied':
-            print('User denied camera access.');
+            debugPrint('User denied camera access.');
             break;
           default:
-            print('Handle other errors.');
+            debugPrint('Handle other errors.');
             break;
         }
       }

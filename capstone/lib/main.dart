@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:animations/animations.dart';
 import 'package:camera/camera.dart';
 import 'package:capstone/pages/CallPage.dart';
-import 'package:capstone/pages/CameraView.dart';
+import 'package:capstone/widgets/CameraView.dart';
 import 'package:capstone/pages/Home.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:flutter/cupertino.dart';
@@ -13,7 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:capstone/database/tables.dart';
 
 void main() async {
-  database = await constructDb();
+  database = constructDb();
   entireAppLoaded = false;
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
@@ -21,7 +21,7 @@ void main() async {
   // initNotificationListener();
 }
 
-Random random = new Random();
+Random random = Random();
 int randomInt = random.nextInt(100);
 late bool entireAppLoaded;
 late PackageInfo packageInfoGlobal;
@@ -52,7 +52,7 @@ class InitializeDatabase extends StatelessWidget {
           ),
         );
         if (snapshot.hasData || entireAppLoaded == true) {
-          child = InitializeApp();
+          child = const InitializeApp();
         }
         return child;
       },
@@ -61,7 +61,7 @@ class InitializeDatabase extends StatelessWidget {
 }
 
 Future<bool> updateSettings(setting, value,
-    {List<int> pagesNeedingRefresh: const [],
+    {List<int> pagesNeedingRefresh = const [],
     bool updateGlobalState = true}) async {
   final prefs = await SharedPreferences.getInstance();
   appStateSettings[setting] = value;

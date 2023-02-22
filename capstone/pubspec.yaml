@@ -40,12 +40,8 @@ dependencies:
   shared_preferences: ^2.0.13
   animations: ^2.0.1
   camera: ^0.10.0+4
-  google_mlkit_face_detection: ^0.5.0
-  mic_stream: ^0.6.2
-  flutter_cube: ^0.1.1
   speech_to_text: ^6.1.0
   record: ^4.4.3
-  audioplayers: ^1.1.1
   video_player: ^2.4.10
 
 dev_dependencies:

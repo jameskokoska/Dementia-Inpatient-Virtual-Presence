@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:capstone/pages/RecordResponse.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/cupertino.dart' hide Table;
 export 'platform/shared.dart';
 part 'tables.g.dart';
 
@@ -40,28 +42,33 @@ String? determinePrevId(currentId) {
   }
 }
 
-Map<String, String> responses = {
-  "0": "How are you doing today?",
-  "1": "Do you know where you are?",
-  "2": "Do you know what year it is? ",
-  "3": "Do you know what season it is? ",
-  "4": "Do you remember the time when <insert pleasant memory cue>?",
-  "5": "How many children do you have? ",
-  "6": "Do you have a spouse? What is their name?",
-  "7": "Where do you live? ",
-  "8": "What are your hobbies?",
-  "9":
-      "Are you feeling scared? Afraid? Tell me more about how you are feeling.",
-  "10": "Do you like to read?",
-  "11": "Today is <insert date> ",
-  "12": "It is the year <insert year>",
-  "13": "It is <season> now",
-  "14": "You are in <insert name of hospital> ",
-  "15": "You are in the hospital because you are sick. ",
-  "16": "You must be feeling very scared right now. ",
-  "17": "Tell me about your friends in school.",
-  "18": "Tell me about your children.",
-  "idle": "Keep your head in the outline and act like you are listening."
+Map<String, Map<String, String>> responses = {
+  "Feelings": {
+    "0": "How are you doing today?",
+    "1": "Do you know where you are?",
+    "2": "Do you know what year it is? ",
+    "3": "Do you know what season it is? ",
+    "4": "Do you remember the time when <insert pleasant memory cue>?",
+    "5": "How many children do you have? ",
+    "6": "Do you have a spouse? What is their name?",
+    "9":
+        "Are you feeling scared? Afraid? Tell me more about how you are feeling.",
+    "10": "Do you like to read?",
+    "11": "Today is <insert date> ",
+    "12": "It is the year <insert year>",
+    "14": "You are in <insert name of hospital> ",
+    "15": "You are in the hospital because you are sick. ",
+    "16": "You must be feeling very scared right now. ",
+    "17": "Tell me about your friends in school.",
+    "18": "Tell me about your children.",
+  },
+  "Weather": {
+    "13": "It is <season> now",
+  },
+  "Questions": {
+    "7": "Where do you live? ",
+    "8": "What are your hobbies?",
+  }
 };
 
 class MapInColumnConverter extends TypeConverter<Map<String, String>, String> {
@@ -106,7 +113,25 @@ class PatientsDatabase extends _$PatientsDatabase {
     return into(users).insertOnConflictUpdate(user);
   }
 
-  Future deleteUser(int id) {
+  Future<User> getUser(int userID) {
+    return (select(users)..where((user) => user.id.equals(userID))).getSingle();
+  }
+
+  Stream<User> watchUser(int userID) {
+    return (select(users)..where((user) => user.id.equals(userID)))
+        .watchSingle();
+  }
+
+  Future deleteUser(int id) async {
+    User user = await getUser(id);
+    Map<String, String> recordings = user.recordings;
+    for (String recordingKey in recordings.keys) {
+      try {
+        await deleteVideo(null, recordings[recordingKey] ?? "");
+      } catch (e) {
+        debugPrint(e.toString());
+      }
+    }
     return (delete(users)..where((user) => user.id.equals(id))).go();
   }
 }

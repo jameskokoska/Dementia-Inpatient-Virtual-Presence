@@ -1,19 +1,14 @@
 import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
-import 'package:camera/camera.dart';
 import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
 import 'package:capstone/pages/Model.dart';
 import 'package:capstone/pages/PlayBackVideo.dart';
 import 'package:capstone/widgets/CameraView.dart';
 import 'package:capstone/widgets/TextFont.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter/cupertino.dart';
-import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 import 'package:http/http.dart' as http;
 
 Future<String> getResponse(String inputText) async {
@@ -21,7 +16,7 @@ Future<String> getResponse(String inputText) async {
 
   Map data = {'input_text': inputText};
   String body = json.encode(data);
-  print(body);
+  debugPrint(body);
 
   var response = await http.post(
     Uri.parse(url),
@@ -170,7 +165,7 @@ class _CallPageState extends State<CallPage> {
                 isRecording = false;
               });
               widget.setCurrentPageIndex(0);
-              Future.delayed(Duration(milliseconds: 100), () {
+              Future.delayed(const Duration(milliseconds: 100), () {
                 speech.stop();
                 speech.cancel();
               });
@@ -201,7 +196,7 @@ class _CallPageState extends State<CallPage> {
         }
       }
     } catch (e) {
-      print(e.toString());
+      debugPrint(e.toString());
     }
   }
 
@@ -275,6 +270,13 @@ class _CallPageState extends State<CallPage> {
                       key: const ValueKey(2),
                     )),
         ),
+        // Align(
+        //   alignment: Alignment.bottomCenter,
+        //   child: Padding(
+        //     padding: EdgeInsets.only(bottom: 105),
+        //     child: Model(),
+        //   ),
+        // ),
       ]);
     }
 
