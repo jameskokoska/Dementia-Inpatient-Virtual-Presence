@@ -5,18 +5,14 @@
 import FlutterMacOS
 import Foundation
 
-import audioplayers_darwin
-import mic_stream
 import package_info_plus_macos
-import path_provider_macos
+import path_provider_foundation
 import record_macos
-import shared_preferences_macos
+import shared_preferences_foundation
 import speech_to_text_macos
 import sqlite3_flutter_libs
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
-  AudioplayersDarwinPlugin.register(with: registry.registrar(forPlugin: "AudioplayersDarwinPlugin"))
-  MicStreamPlugin.register(with: registry.registrar(forPlugin: "MicStreamPlugin"))
   FLTPackageInfoPlusPlugin.register(with: registry.registrar(forPlugin: "FLTPackageInfoPlusPlugin"))
   PathProviderPlugin.register(with: registry.registrar(forPlugin: "PathProviderPlugin"))
   RecordMacosPlugin.register(with: registry.registrar(forPlugin: "RecordMacosPlugin"))

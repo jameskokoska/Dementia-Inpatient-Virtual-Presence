@@ -68,8 +68,17 @@ Map<String, Map<String, String>> responses = {
   "Questions": {
     "7": "Where do you live? ",
     "8": "What are your hobbies?",
-  }
+  },
+  "Idle": {"idle": "Record an Idle Head"}
 };
+
+String? findResponseId(String id) {
+  for (String category in responses.keys) {
+    if (responses[category]![id] != null) {
+      return responses[category]![id]!;
+    }
+  }
+}
 
 class MapInColumnConverter extends TypeConverter<Map<String, String>, String> {
   const MapInColumnConverter();

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
-import 'package:capstone/pages/Model.dart';
 import 'package:capstone/pages/PlayBackVideo.dart';
 import 'package:capstone/widgets/CameraView.dart';
 import 'package:capstone/widgets/TextFont.dart';
@@ -183,12 +182,12 @@ class _CallPageState extends State<CallPage> {
         if (inputText != "<Pause>") {
           String selectedIdResponse = await getResponse(inputText);
           print(selectedIdResponse);
-          print("RESPONSE:" + responses[selectedIdResponse]!);
+          print("RESPONSE:" + findResponseId(selectedIdResponse)!);
           if (isPlayingARecording == false) {
             setState(() {
               isPlayingARecording = true;
               isMuted = true;
-              responseText = responses[selectedIdResponse] ?? "";
+              responseText = findResponseId(selectedIdResponse) ?? "";
               selectedId = selectedIdResponse;
             });
             speech.cancel();

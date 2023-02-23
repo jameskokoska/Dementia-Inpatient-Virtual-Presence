@@ -123,7 +123,7 @@ class _RecordResponseState extends State<RecordResponse> {
                     ),
                   )
                 : recordingPath != null
-                    ? PlayBackVideo(filePath: recordingPath!)
+                    ? PlayBackVideo(filePath: recordingPath!, isLooping: false)
                     : CameraPreview(_cameraController),
             Align(
               alignment: Alignment.bottomCenter,
