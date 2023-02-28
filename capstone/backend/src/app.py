@@ -95,19 +95,19 @@ prev = {
 
 class Responder(Resource):
     def post(self):
-        debugPrint(request.data)
+        print(request.data)
         s = json.loads(request.data.decode('utf8'))["input_text"]
-        debugPrint("input_text:", s)
+        print("input_text:", s)
         tp = model.classify(s)
         index = -1
         while True:
             i = random.randint(0, len(responses[tp])-1)
             if i != prev[tp]:
-                debugPrint(tp)
+                print(tp)
                 index = i
                 prev[tp] = i
                 break
-        debugPrint(index)
+        print(index)
         index = responses[tp][index]
         resp = jsonify({"response_id": index})
         resp.status_code = 200

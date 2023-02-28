@@ -10,7 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-Future<String> getResponse(String inputText) async {
+Future<String> getResponse(String inputText, User user) async {
   String url = 'http://192.168.2.98:5000/response';
 
   Map data = {'input_text': inputText};
@@ -180,7 +180,7 @@ class _CallPageState extends State<CallPage> {
     try {
       if (!isPlayingARecording && isMutedFrontEnd == false) {
         if (inputText != "<Pause>") {
-          String selectedIdResponse = await getResponse(inputText);
+          String selectedIdResponse = await getResponse(inputText, user!);
           print(selectedIdResponse);
           print("RESPONSE:" + findResponseId(selectedIdResponse)!);
           if (isPlayingARecording == false) {
@@ -233,42 +233,46 @@ class _CallPageState extends State<CallPage> {
       );
     } else {
       centerContent = Stack(children: [
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 105),
-            child: PlayBackVideo(
-              key: ValueKey(2),
-              filePath: user!.recordings["idle"]!,
-              isLooping: true,
-              volume: 0,
-              initializeFirst: false,
-            ),
-          ),
-        ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-              padding: EdgeInsets.only(bottom: 105),
-              child: isPlayingARecording == true &&
-                      selectedId != null &&
-                      user!.recordings[selectedId] != null
-                  ? PlayBackVideo(
-                      key: const ValueKey(1),
-                      filePath: user!.recordings[selectedId]!,
-                      isLooping: false,
-                      onFinishPlayback: () {
-                        setState(() {
-                          isPlayingARecording = false;
-                          isMuted = false;
-                        });
-                      },
-                    )
-                  : Container(
-                      color: Colors.transparent,
-                      key: const ValueKey(2),
-                    )),
-        ),
+        user == null || user!.recordings["idle"] == null
+            ? SizedBox.shrink()
+            : Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 105),
+                  child: PlayBackVideo(
+                    key: ValueKey(2),
+                    filePath: user!.recordings["idle"]!,
+                    isLooping: true,
+                    volume: 0,
+                    initializeFirst: false,
+                  ),
+                ),
+              ),
+        user == null || user!.recordings[selectedId] == null
+            ? SizedBox.shrink()
+            : Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                    padding: EdgeInsets.only(bottom: 105),
+                    child: isPlayingARecording == true &&
+                            selectedId != null &&
+                            user!.recordings[selectedId] != null
+                        ? PlayBackVideo(
+                            key: const ValueKey(1),
+                            filePath: user!.recordings[selectedId]!,
+                            isLooping: false,
+                            onFinishPlayback: () {
+                              setState(() {
+                                isPlayingARecording = false;
+                                isMuted = false;
+                              });
+                            },
+                          )
+                        : Container(
+                            color: Colors.transparent,
+                            key: const ValueKey(2),
+                          )),
+              ),
         // Align(
         //   alignment: Alignment.bottomCenter,
         //   child: Padding(

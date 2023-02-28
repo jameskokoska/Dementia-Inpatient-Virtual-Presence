@@ -69,7 +69,8 @@ Map<String, Map<String, String>> responses = {
     "7": "Where do you live? ",
     "8": "What are your hobbies?",
   },
-  "Idle": {"idle": "Record an Idle Head"}
+  "Idle": {"idle": "Record an Idle Head"},
+  "Acknowledgements": {"mhm": "Say mhm", "oh": "Say Oh"}
 };
 
 String? findResponseId(String id) {
