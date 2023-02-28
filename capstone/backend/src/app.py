@@ -1,70 +1,63 @@
-import random
-import pickle
-import re
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.ensemble import RandomForestClassifier
-from nltk.stem import WordNetLemmatizer
-from flask import Flask, request, jsonify
-from flask_restful import Api, Resource
-import json
 
 # set FLASK_APP=app.py
 # flask run --host=0.0.0.0
 
-stemmer = WordNetLemmatizer()
+import nltk
+nltk.download('punkt')
+nltk.download('wordnet')
+from nltk.stem import WordNetLemmatizer
+lemmatizer = WordNetLemmatizer()
+import pickle
+
+from flask import Flask, request, jsonify
+from flask_restful import Api, Resource
+import json
+
+import numpy as np
+import keras
+
+words = None
+classes = None
+with open("words.pkl", "rb") as f:
+    words = pickle.load(f)
+
+with open("classes.pkl", "rb") as f:
+    classes = pickle.load(f)
 
 
-def clean(document):
-    # Remove all the special characters
-    document = re.sub(r'\W', ' ', document)
+def clean_up_sentence(sentence):
+    sentence_words = nltk.word_tokenize(sentence)
+    sentence_words = [lemmatizer.lemmatize(word.lower()) for word in sentence_words]
+    return sentence_words
 
-    # remove all single characters
-    document = re.sub(r'\s+[a-zA-Z]\s+', ' ', document)
+def bow(sentence, words, show_details=True):
+    # tokenize the pattern
+    sentence_words = clean_up_sentence(sentence)
+    # bag of words - matrix of N words, vocabulary matrix
+    bag = [0]*len(words)
+    for s in sentence_words:
+        for i,w in enumerate(words):
+            if w == s:
+                # assign 1 if current word is in the vocabulary position
+                bag[i] = 1
+                if show_details:
+                    print ("found in bag: %s" % w)
+    return(np.array(bag))
 
-    # Remove single characters from the start
-    document = re.sub(r'\^[a-zA-Z]\s+', ' ', document)
+def predict_class(sentence, model):
+    # filter out predictions below a threshold
+    p = bow(sentence, words,show_details=False)
+    res = model.predict(np.array([p]))[0]
+    ERROR_THRESHOLD = -1 # change this later if we want only high confidence results
+    results = [[i,r] for i,r in enumerate(res) if r>=ERROR_THRESHOLD]
+    # sort by strength of probability
+    results.sort(key=lambda x: x[1], reverse=True)
+    return_list = []
+    for r in results:
+        return_list.append({"intent": classes[r[0]], "probability": str(r[1])})
+    return return_list
 
-    # Substituting multiple spaces with single space
-    document = re.sub(r'\s+', ' ', document, flags=re.I)
-
-    # Removing prefixed 'b'
-    document = re.sub(r'^b\s+', '', document)
-
-    # Converting to Lowercase
-    document = document.lower()
-
-    # Lemmatization
-    document = document.split()
-
-    document = [stemmer.lemmatize(word) for word in document]
-    document = ' '.join(document)
-    return document
-
-
-class AudioModel:
-    def __init__(self) -> None:
-        self.types = ['feelings', 'questions', 'weather']
-        with open("classifier.pkl", "rb") as f:
-            self.classifier = pickle.load(f)
-        with open("vectorizer.pkl", "rb") as f:
-            self.vectorizer = pickle.load(f)
-
-    def classify(self, s):
-        s = clean(s)
-        X = self.vectorizer.transform([s]).toarray()
-        y = self.classifier.predict(X)[0]
-        return self.types[y]
-
-
-model = AudioModel()
-#  types = ['feelings', 'questions', 'weather']
-
-
-responses = {
-    'feelings': [0, 1, 4, 5, 6, 8, 9, 10, 17, 18],
-    'questions': [11, 12, 14, 15, 16],
-    'weather': [2, 3, 7, 13]
-}
+model = keras.models.load_model("model.h5")
 
 #   "0": "How are you doing today?",
 #   "1": "Do you know where you are?",
@@ -95,21 +88,8 @@ prev = {
 
 class Responder(Resource):
     def post(self):
-        debugPrint(request.data)
         s = json.loads(request.data.decode('utf8'))["input_text"]
-        debugPrint("input_text:", s)
-        tp = model.classify(s)
-        index = -1
-        while True:
-            i = random.randint(0, len(responses[tp])-1)
-            if i != prev[tp]:
-                debugPrint(tp)
-                index = i
-                prev[tp] = i
-                break
-        debugPrint(index)
-        index = responses[tp][index]
-        resp = jsonify({"response_id": index})
+        resp = jsonify(predict_class(s, model))
         resp.status_code = 200
         return resp
 
