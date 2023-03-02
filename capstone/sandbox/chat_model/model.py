@@ -20,7 +20,7 @@ ignore_words = ['?', '!']
 data_file = open('intents.json').read()
 intents = json.loads(data_file)
 
-debugPrint("OKAY here")
+# debugPrint("OKAY here")
 
 
 for intent in intents['intents']:
@@ -45,7 +45,7 @@ pickle.dump(words, open('words.pkl', 'wb'))
 pickle.dump(classes, open('classes.pkl', 'wb'))
 
 
-debugPrint("Starting model training - Update this later")
+# debugPrint("Starting model training - Update this later")
 
 # initializing training data
 training = []
@@ -73,7 +73,7 @@ training = np.array(training)
 # create train and test lists. X - patterns, Y - intents
 train_x = list(training[:, 0])
 train_y = list(training[:, 1])
-debugPrint("Training data created")
+# debugPrint("Training data created")
 
 # Create model - 3 layers. First layer 128 neurons, second layer 64 neurons and 3rd output layer contains number of neurons
 # equal to number of intents to predict output intent with softmax
@@ -94,7 +94,7 @@ hist = model.fit(np.array(train_x), np.array(train_y),
                  epochs=200, batch_size=5, verbose=1)
 model.save('model.h5', hist)
 
-debugPrint("model created")
+# debugPrint("model created")
 
 
 def clean_up_sentence(sentence):
@@ -125,7 +125,7 @@ def predict_class(sentence, model):
     # filter out predictions below a threshold
     p = bow(sentence, words, show_details=False)
     res = model.predict(np.array([p]))[0]
-    ERROR_THRESHOLD = 0.25
+    ERROR_THRESHOLD = -1
     results = [[i, r] for i, r in enumerate(res) if r > ERROR_THRESHOLD]
     # sort by strength of probability
     results.sort(key=lambda x: x[1], reverse=True)
@@ -136,7 +136,7 @@ def predict_class(sentence, model):
 
 
 while True:
-    debugPrint("Say something to the model.")
+    print("Say something to the model.")
     s = input()
     l = predict_class(s, model)
-    debugPrint(l)
+    print(l)
