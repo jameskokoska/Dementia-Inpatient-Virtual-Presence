@@ -57,7 +57,7 @@ class UserEntry extends StatelessWidget {
           ),
         );
       },
-      key: ValueKey<int>(this.user.id),
+      key: ValueKey<int>(user.id),
       onDismissed: (DismissDirection direction) {},
       child: CupertinoButton(
         padding: const EdgeInsets.only(left: 15, top: 10, bottom: 10, right: 0),

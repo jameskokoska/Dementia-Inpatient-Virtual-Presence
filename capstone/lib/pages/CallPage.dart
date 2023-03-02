@@ -251,19 +251,21 @@ class _CallPageState extends State<CallPage> {
       );
     } else {
       centerContent = Stack(children: [
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 105),
-            child: PlayBackVideo(
-              key: ValueKey(2),
-              filePath: user!.recordings["idle"]!,
-              isLooping: true,
-              volume: 0,
-              initializeFirst: false,
-            ),
-          ),
-        ),
+        user!.recordings["idle"] == null
+            ? const SizedBox.shrink()
+            : Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 105),
+                  child: PlayBackVideo(
+                    key: ValueKey(2),
+                    filePath: user!.recordings["idle"]!,
+                    isLooping: true,
+                    volume: 0,
+                    initializeFirst: false,
+                  ),
+                ),
+              ),
         Align(
           alignment: Alignment.bottomCenter,
           child: Padding(

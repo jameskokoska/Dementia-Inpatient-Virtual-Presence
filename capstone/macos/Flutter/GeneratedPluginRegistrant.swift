@@ -6,9 +6,9 @@ import FlutterMacOS
 import Foundation
 
 import package_info_plus_macos
-import path_provider_foundation
+import path_provider_macos
 import record_macos
-import shared_preferences_foundation
+import shared_preferences_macos
 import speech_to_text_macos
 import sqlite3_flutter_libs
 

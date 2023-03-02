@@ -21,7 +21,7 @@ class TextFont extends StatelessWidget {
     this.fontWeight = FontWeight.normal,
     this.textAlign = TextAlign.left,
     this.textColor,
-    this.maxLines = null,
+    this.maxLines,
     this.fixParagraphMargin = false,
     this.maxFontSize,
     this.minFontSize,
@@ -31,15 +31,15 @@ class TextFont extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var finalTextColor;
-    if (this.textColor == null) {
+    Color? finalTextColor;
+    if (textColor == null) {
       finalTextColor = getColor(context, "black");
     } else {
       finalTextColor = textColor;
     }
     final TextStyle textStyle = TextStyle(
-      fontWeight: this.fontWeight,
-      fontSize: this.fontSize,
+      fontWeight: fontWeight,
+      fontSize: fontSize,
       color: finalTextColor,
       decoration: TextDecoration.underline,
       decorationStyle: TextDecorationStyle.double,

@@ -33,7 +33,7 @@ class HomePage extends StatelessWidget {
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 // print(snapshot.data);
-                if (snapshot.data!.length <= 0) {
+                if (snapshot.data!.isEmpty) {
                   return SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.only(top: 50),

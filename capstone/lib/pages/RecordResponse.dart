@@ -226,6 +226,16 @@ class _RecordResponseState extends State<RecordResponse> {
                 ),
               ),
             ),
+            Opacity(
+              opacity: 0.5,
+              child: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/PersonOutline.png'),
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
