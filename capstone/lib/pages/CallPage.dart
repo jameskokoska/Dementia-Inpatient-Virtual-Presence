@@ -22,7 +22,25 @@ Future<String> getResponse(String inputText, User user) async {
     headers: {"Content-Type": "application/json"},
     body: body,
   );
-  print("${response.body}");
+
+  final intInStr = RegExp(r'\d+');
+
+  for (int i = 0; i < json.decode(response.body).length; i++) {
+    List<String?> responseIds = intInStr
+        .allMatches(json.decode(response.body)[0]["intent"])
+        .map((m) => m.group(0))
+        .toList();
+
+    // print(responseIds);
+
+    for (int j = 0; j < responseIds.length; j++) {
+      if (user.recordings[responseIds[j]] != null) {
+        return responseIds[j].toString();
+      }
+    }
+  }
+
+  // print(responseList);
   return json.decode(response.body)["response_id"].toString();
 }
 
@@ -233,46 +251,42 @@ class _CallPageState extends State<CallPage> {
       );
     } else {
       centerContent = Stack(children: [
-        user == null || user!.recordings["idle"] == null
-            ? SizedBox.shrink()
-            : Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: EdgeInsets.only(bottom: 105),
-                  child: PlayBackVideo(
-                    key: ValueKey(2),
-                    filePath: user!.recordings["idle"]!,
-                    isLooping: true,
-                    volume: 0,
-                    initializeFirst: false,
-                  ),
-                ),
-              ),
-        user == null || user!.recordings[selectedId] == null
-            ? SizedBox.shrink()
-            : Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                    padding: EdgeInsets.only(bottom: 105),
-                    child: isPlayingARecording == true &&
-                            selectedId != null &&
-                            user!.recordings[selectedId] != null
-                        ? PlayBackVideo(
-                            key: const ValueKey(1),
-                            filePath: user!.recordings[selectedId]!,
-                            isLooping: false,
-                            onFinishPlayback: () {
-                              setState(() {
-                                isPlayingARecording = false;
-                                isMuted = false;
-                              });
-                            },
-                          )
-                        : Container(
-                            color: Colors.transparent,
-                            key: const ValueKey(2),
-                          )),
-              ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 105),
+            child: PlayBackVideo(
+              key: ValueKey(2),
+              filePath: user!.recordings["idle"]!,
+              isLooping: true,
+              volume: 0,
+              initializeFirst: false,
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+              padding: EdgeInsets.only(bottom: 105),
+              child: isPlayingARecording == true &&
+                      selectedId != null &&
+                      user!.recordings[selectedId] != null
+                  ? PlayBackVideo(
+                      key: const ValueKey(1),
+                      filePath: user!.recordings[selectedId]!,
+                      isLooping: false,
+                      onFinishPlayback: () {
+                        setState(() {
+                          isPlayingARecording = false;
+                          isMuted = false;
+                        });
+                      },
+                    )
+                  : Container(
+                      color: Colors.transparent,
+                      key: const ValueKey(2),
+                    )),
+        ),
         // Align(
         //   alignment: Alignment.bottomCenter,
         //   child: Padding(

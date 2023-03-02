@@ -86,7 +86,7 @@ class _PlayBackVideoState extends State<PlayBackVideo> {
         future: _initVideoPlayer(),
         builder: (context, state) {
           if (state.connectionState == ConnectionState.waiting) {
-            return Container();
+            return const SizedBox.shrink();
           } else {
             return AspectRatio(
               aspectRatio: _videoPlayerController.value.aspectRatio,
