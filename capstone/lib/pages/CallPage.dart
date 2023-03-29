@@ -252,9 +252,9 @@ class _CallPageState extends State<CallPage> {
         user!.recordings["idle"] == null
             ? const SizedBox.shrink()
             : Align(
-                alignment: Alignment.bottomCenter,
+                alignment: Alignment.center,
                 child: Padding(
-                  padding: EdgeInsets.only(bottom: 105),
+                  padding: const EdgeInsets.only(bottom: 50),
                   child: PlayBackVideo(
                     key: ValueKey(2),
                     filePath: user!.recordings["idle"]!,
@@ -264,10 +264,12 @@ class _CallPageState extends State<CallPage> {
                   ),
                 ),
               ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Padding(
-              padding: const EdgeInsets.only(bottom: 105),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 50),
+          child: Align(
+            alignment: Alignment.center,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
               child: selectedId != null && user!.recordings[selectedId] != null
                   ? PlayBackVideo(
                       key: const ValueKey(1),
@@ -284,10 +286,11 @@ class _CallPageState extends State<CallPage> {
                         // });
                       },
                     )
-                  : Container(
-                      color: Colors.transparent,
+                  : SizedBox(
                       key: const ValueKey(2),
-                    )),
+                    ),
+            ),
+          ),
         ),
         // Align(
         //   alignment: Alignment.bottomCenter,
