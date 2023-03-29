@@ -11,7 +11,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<String> getResponse(String inputText, User user) async {
-  String url = 'http://192.168.2.98:5000/response';
+  String url = 'http://10.0.0.50:5000/response';
 
   Map data = {'input_text': inputText};
   String body = json.encode(data);
@@ -56,29 +56,22 @@ class CallPage extends StatefulWidget {
 
 class _CallPageState extends State<CallPage> {
   stt.SpeechToText speech = stt.SpeechToText();
-  bool isRecording = false;
-  bool isMuted = false;
+  bool isAvailable = false;
   bool isMutedFrontEnd = false;
   String lastRecognizedText = "";
-  String responseText = "";
-  String lastStatus = "";
   bool isFacingFront = true;
-  bool isPlayingARecording = false;
   String? selectedId;
   late User? user = widget.user;
+  bool isPlayingRecording = false;
 
   @override
   void didUpdateWidget(Widget oldWidget) {
     if (widget.user != user) {
       setState(() {
         user = widget.user;
-        isRecording = true;
-        lastStatus = "";
         lastRecognizedText = "";
-        isPlayingARecording = false;
-        isMuted = false;
         isMutedFrontEnd = false;
-        responseText = "";
+        isPlayingRecording = false;
       });
     }
   }
@@ -88,42 +81,45 @@ class _CallPageState extends State<CallPage> {
     super.initState();
     Future.delayed(Duration.zero, () async {
       bool available = await speech.initialize(
-        onStatus: (status) {
-          if (status == "done" && lastStatus == "notListening") {
-            _determineWhatToPlay(lastRecognizedText);
-            setState(() {
-              if (lastRecognizedText.contains("<Pause>")) {
-                lastRecognizedText = "<Pause>";
-              } else {
-                lastRecognizedText = "$lastRecognizedText <Pause>";
-              }
-            });
-          }
-          lastStatus = status;
+        onStatus: (status) async {
+          print("STATUS:" + status);
         },
       );
       if (available) {
         setState(() {
-          isRecording = true;
+          isAvailable = true;
         });
+        print("IS AVAILABLE!");
         _startRecordingLoop();
       } else {
         setState(() {
-          isRecording = false;
+          isAvailable = false;
         });
       }
     });
   }
 
+  final _isTalkingDebouncer = Debouncer(milliseconds: 3500);
+
   _startRecordingLoop() async {
     while (true) {
       await Future.delayed(const Duration(milliseconds: 100), () {
-        if (!isMuted && user != null && isRecording && !isMutedFrontEnd) {
+        if (isPlayingRecording == false && user != null && !isMutedFrontEnd) {
           speech.listen(
             onResult: (result) {
-              setState(() {
-                lastRecognizedText = result.recognizedWords;
-              });
+              print(result.recognizedWords);
+              if (result.finalResult) {
+                setState(() {
+                  lastRecognizedText =
+                      (lastRecognizedText + " " + result.recognizedWords)
+                          .trim();
+                });
+              } else {
+                _isTalkingDebouncer.run(() {
+                  print("DEBOUNCER OVER");
+                  _determineWhatToPlay(lastRecognizedText);
+                });
+              }
             },
             partialResults: true,
           );
@@ -146,7 +142,7 @@ class _CallPageState extends State<CallPage> {
             user!.description != ""
                 ? Text(user!.description, textAlign: TextAlign.center)
                 : const SizedBox.shrink(),
-            Text(user!.recordings["1"]!, textAlign: TextAlign.center)
+            Text(user!.recordings.toString(), textAlign: TextAlign.center)
           ],
         ),
         actions: [
@@ -179,7 +175,6 @@ class _CallPageState extends State<CallPage> {
               Navigator.pop(context);
               setState(() {
                 user = null;
-                isRecording = false;
               });
               widget.setCurrentPageIndex(0);
               Future.delayed(const Duration(milliseconds: 100), () {
@@ -194,32 +189,35 @@ class _CallPageState extends State<CallPage> {
     );
   }
 
-  void _determineWhatToPlay(inputText) async {
+  Future<bool> _determineWhatToPlay(inputText) async {
     try {
-      if (!isPlayingARecording && isMutedFrontEnd == false) {
-        if (inputText != "<Pause>") {
+      if (lastRecognizedText != "" && selectedId == null) {
+        isPlayingRecording = true;
+        lastRecognizedText = "";
+        speech.cancel();
+        if (isMutedFrontEnd == false) {
+          print(inputText);
           String selectedIdResponse = await getResponse(inputText, user!);
           print(selectedIdResponse);
           print("RESPONSE:" + findResponseId(selectedIdResponse)!);
-          if (isPlayingARecording == false) {
+          if (selectedId == null) {
             setState(() {
-              isPlayingARecording = true;
-              isMuted = true;
-              responseText = findResponseId(selectedIdResponse) ?? "";
               selectedId = selectedIdResponse;
             });
-            speech.cancel();
           }
         }
       }
+      return true;
     } catch (e) {
+      debugPrint("Most likely the user has not recorded this response");
       debugPrint(e.toString());
+      isPlayingRecording = false;
+      return false;
     }
   }
 
   @override
   void dispose() {
-    isRecording = false;
     super.dispose();
   }
 
@@ -238,7 +236,7 @@ class _CallPageState extends State<CallPage> {
         ),
       );
     }
-    if (isRecording == false) {
+    if (isAvailable == false) {
       centerContent = Center(
         child: Container(
           padding: const EdgeInsets.all(35),
@@ -269,19 +267,21 @@ class _CallPageState extends State<CallPage> {
         Align(
           alignment: Alignment.bottomCenter,
           child: Padding(
-              padding: EdgeInsets.only(bottom: 105),
-              child: isPlayingARecording == true &&
-                      selectedId != null &&
-                      user!.recordings[selectedId] != null
+              padding: const EdgeInsets.only(bottom: 105),
+              child: selectedId != null && user!.recordings[selectedId] != null
                   ? PlayBackVideo(
                       key: const ValueKey(1),
                       filePath: user!.recordings[selectedId]!,
                       isLooping: false,
                       onFinishPlayback: () {
                         setState(() {
-                          isPlayingARecording = false;
-                          isMuted = false;
+                          selectedId = null;
+                          isPlayingRecording = false;
                         });
+                        // setState(() {
+                        //   isPlayingARecording = false;
+                        //   isMuted = false;
+                        // });
                       },
                     )
                   : Container(
@@ -394,7 +394,7 @@ class _CallPageState extends State<CallPage> {
             ),
           )
         : const SizedBox.shrink();
-    Widget responseTextWidget = responseText != ""
+    Widget responseTextWidget = selectedId != null
         ? Positioned(
             bottom: 145,
             width: MediaQuery.of(context).size.width,
@@ -404,7 +404,7 @@ class _CallPageState extends State<CallPage> {
                   left: 8.0, right: 8.0, top: 5, bottom: 9),
               child: TextFont(
                 textColor: Colors.red,
-                text: responseText,
+                text: findResponseId(selectedId ?? "") ?? "",
                 maxLines: 2,
                 textAlign: TextAlign.center,
               ),
@@ -420,7 +420,7 @@ class _CallPageState extends State<CallPage> {
           borderRadius: BorderRadius.circular(10),
           child: SizedBox(
             width: 110,
-            child: isRecording == true && user != null
+            child: user != null
                 ? CameraView(isFacingFront: isFacingFront)
                 : const SizedBox.shrink(),
           ),
@@ -435,11 +435,23 @@ class _CallPageState extends State<CallPage> {
             centerContent,
             cameraView,
             bottomButtons,
-            isPlayingARecording ? SizedBox.shrink() : recognizedText,
-            isPlayingARecording ? responseTextWidget : SizedBox.shrink(),
+            selectedId != null ? SizedBox.shrink() : recognizedText,
+            selectedId != null ? responseTextWidget : SizedBox.shrink(),
           ],
         ),
       ),
     );
+  }
+}
+
+class Debouncer {
+  final int milliseconds;
+  Timer? _timer;
+
+  Debouncer({required this.milliseconds});
+
+  run(VoidCallback action) {
+    _timer?.cancel();
+    _timer = Timer(Duration(milliseconds: milliseconds), action);
   }
 }

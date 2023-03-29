@@ -123,7 +123,7 @@ class _RecordResponseState extends State<RecordResponse> {
                     ),
                   )
                 : recordingPath != null
-                    ? PlayBackVideo(filePath: recordingPath!, isLooping: false)
+                    ? PlayBackVideo(filePath: recordingPath!, isLooping: true)
                     : CameraPreview(_cameraController),
             Align(
               alignment: Alignment.bottomCenter,
@@ -226,12 +226,14 @@ class _RecordResponseState extends State<RecordResponse> {
                 ),
               ),
             ),
-            Opacity(
-              opacity: 0.5,
-              child: Container(
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/PersonOutline.png'),
+            IgnorePointer(
+              child: Opacity(
+                opacity: 0.5,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/PersonOutline.png'),
+                    ),
                   ),
                 ),
               ),

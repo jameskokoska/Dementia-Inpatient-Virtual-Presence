@@ -35,7 +35,6 @@ class _PlayBackVideoState extends State<PlayBackVideo> {
 
   @override
   void initState() {
-    super.initState();
     if (widget.initializeFirst == false) {
       _videoPlayerController = VideoPlayerController.file(File(widget.filePath),
           videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true))
@@ -51,6 +50,7 @@ class _PlayBackVideoState extends State<PlayBackVideo> {
         ..setVolume(widget.volume)
         ..play();
     }
+    super.initState();
   }
 
   Future _initVideoPlayer() async {
