@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
+import 'package:capstone/main.dart';
 import 'package:capstone/pages/PlayBackVideo.dart';
 import 'package:capstone/widgets/CameraView.dart';
 import 'package:capstone/widgets/TextFont.dart';
@@ -11,7 +12,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<String> getResponse(String inputText, User user) async {
-  String url = 'http://10.0.0.50:5000/response';
+  String url = appStateSettings["backend-ip"] + '/response';
 
   Map data = {'input_text': inputText};
   String body = json.encode(data);
@@ -23,15 +24,8 @@ Future<String> getResponse(String inputText, User user) async {
     body: body,
   );
 
-  final intInStr = RegExp(r'\d+');
-
   for (int i = 0; i < json.decode(response.body).length; i++) {
-    List<String?> responseIds = intInStr
-        .allMatches(json.decode(response.body)[0]["intent"])
-        .map((m) => m.group(0))
-        .toList();
-
-    // print(responseIds);
+    List<String?> responseIds = orderIntents(json.decode(response.body));
 
     for (int j = 0; j < responseIds.length; j++) {
       if (user.recordings[responseIds[j]] != null) {
@@ -40,8 +34,56 @@ Future<String> getResponse(String inputText, User user) async {
     }
   }
 
-  // print(responseList);
   return json.decode(response.body)["response_id"].toString();
+}
+
+String extractNumberFromEnd(String input) {
+  final RegExp regex = RegExp(r'\((\d+)\)$');
+  final Match? match = regex.firstMatch(input);
+  if (match == null) {
+    throw ArgumentError(
+        'Input does not contain a number in brackets at the end.');
+  }
+  return match.group(1)!;
+}
+
+List<String> orderIntents(List<dynamic> intents) {
+  try {
+    List<String> orderedIntents = [];
+
+    // Create a Map of intents with their probabilities as keys
+    Map<double, String> intentMap = {};
+    for (var intent in intents) {
+      double probability = double.parse(intent['probability']!);
+      intentMap[probability] = intent['intent']!;
+    }
+
+    // Sort the keys (probabilities) in descending order
+    List<double> sortedKeys = intentMap.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+
+    // Add the intents to the ordered list in descending order of probability
+    for (var key in sortedKeys) {
+      orderedIntents.add(extractNumberFromEnd(intentMap[key]!));
+    }
+
+    return orderedIntents;
+  } catch (e) {
+    debugPrint(
+        "$e The format recieved from the backend is different than what was expected.");
+  }
+  return [];
+}
+
+String? getRandomQuestion(User user) {
+  List<String> questionIDs = responses["Questions"]!.keys.toList();
+  questionIDs.shuffle();
+  for (String responseID in questionIDs) {
+    if (user.recordings[responseID] != null) {
+      return responseID.toString();
+    }
+  }
+  return null;
 }
 
 class CallPage extends StatefulWidget {
@@ -55,6 +97,7 @@ class CallPage extends StatefulWidget {
 }
 
 class _CallPageState extends State<CallPage> {
+  bool callLoading = true;
   stt.SpeechToText speech = stt.SpeechToText();
   bool isAvailable = false;
   bool isMutedFrontEnd = false;
@@ -64,14 +107,36 @@ class _CallPageState extends State<CallPage> {
   late User? user = widget.user;
   bool isPlayingRecording = false;
 
+  Debouncer _isTalkingDebouncer =
+      Debouncer(milliseconds: int.parse(appStateSettings["duration-listen"]));
+  Debouncer _silenceDebouncer =
+      Debouncer(milliseconds: int.parse(appStateSettings["duration-wait"]));
+
   @override
   void didUpdateWidget(Widget oldWidget) {
+    debugPrint("Loaded page");
     if (widget.user != user) {
+      _isTalkingDebouncer = Debouncer(
+          milliseconds: int.parse(appStateSettings["duration-listen"]));
+      _silenceDebouncer =
+          Debouncer(milliseconds: int.parse(appStateSettings["duration-wait"]));
       setState(() {
+        callLoading = true;
         user = widget.user;
-        lastRecognizedText = "";
-        isMutedFrontEnd = false;
+        selectedId = null;
         isPlayingRecording = false;
+      });
+      Future.delayed(const Duration(milliseconds: 2500), () {
+        setState(() {
+          lastRecognizedText = "";
+          isMutedFrontEnd = false;
+          isPlayingRecording = false;
+          selectedId = null;
+          callLoading = false;
+        });
+        Future.delayed(const Duration(milliseconds: 500), () {
+          playOpening();
+        });
       });
     }
   }
@@ -81,15 +146,14 @@ class _CallPageState extends State<CallPage> {
     super.initState();
     Future.delayed(Duration.zero, () async {
       bool available = await speech.initialize(
-        onStatus: (status) async {
-          print("STATUS:" + status);
-        },
-      );
+          // onStatus: (status) async {
+          //   print("STATUS:" + status);
+          // },
+          );
       if (available) {
         setState(() {
           isAvailable = true;
         });
-        print("IS AVAILABLE!");
         _startRecordingLoop();
       } else {
         setState(() {
@@ -99,14 +163,20 @@ class _CallPageState extends State<CallPage> {
     });
   }
 
-  final _isTalkingDebouncer = Debouncer(milliseconds: 3500);
-
   _startRecordingLoop() async {
     while (true) {
       await Future.delayed(const Duration(milliseconds: 100), () {
+        if (isPlayingRecording == true || lastRecognizedText != "") {
+          _silenceDebouncer.run(() {
+            playRandomQuestion();
+          });
+        }
         if (isPlayingRecording == false && user != null && !isMutedFrontEnd) {
           speech.listen(
             onResult: (result) {
+              _silenceDebouncer.run(() {
+                playRandomQuestion();
+              });
               print(result.recognizedWords);
               if (result.finalResult) {
                 setState(() {
@@ -216,6 +286,37 @@ class _CallPageState extends State<CallPage> {
     }
   }
 
+  bool playRandomQuestion() {
+    if (isMutedFrontEnd == false) {
+      String? selectedIdResponse = getRandomQuestion(user!);
+      debugPrint("randomQuestion $selectedIdResponse");
+      if (selectedId == null && selectedIdResponse != null) {
+        isPlayingRecording = true;
+        lastRecognizedText = "";
+        speech.cancel();
+        setState(() {
+          selectedId = selectedIdResponse;
+        });
+      }
+    }
+    return true;
+  }
+
+  bool playOpening() {
+    if (isMutedFrontEnd == false) {
+      String selectedIdResponse = "opening";
+      if (selectedId == null && user!.recordings[selectedIdResponse] != null) {
+        isPlayingRecording = true;
+        lastRecognizedText = "";
+        speech.cancel();
+        setState(() {
+          selectedId = selectedIdResponse;
+        });
+      }
+    }
+    return true;
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -224,18 +325,6 @@ class _CallPageState extends State<CallPage> {
   @override
   Widget build(BuildContext context) {
     Widget centerContent = Container();
-    if (user == null) {
-      return Center(
-        child: Container(
-          padding: const EdgeInsets.all(35),
-          child: const TextFont(
-            text: "No user selected.",
-            textAlign: TextAlign.center,
-            maxLines: 10,
-          ),
-        ),
-      );
-    }
     if (isAvailable == false) {
       centerContent = Center(
         child: Container(
@@ -249,8 +338,17 @@ class _CallPageState extends State<CallPage> {
       );
     } else {
       centerContent = Stack(children: [
-        user!.recordings["idle"] == null
-            ? const SizedBox.shrink()
+        user?.recordings["idle"] == null
+            ? Center(
+                child: Container(
+                  padding: const EdgeInsets.all(35),
+                  child: const TextFont(
+                    text: "No idle video found.",
+                    textAlign: TextAlign.center,
+                    maxLines: 10,
+                  ),
+                ),
+              )
             : Align(
                 alignment: Alignment.center,
                 child: Padding(
@@ -286,8 +384,8 @@ class _CallPageState extends State<CallPage> {
                         // });
                       },
                     )
-                  : SizedBox(
-                      key: const ValueKey(2),
+                  : const SizedBox(
+                      key: ValueKey(2),
                     ),
             ),
           ),
@@ -308,7 +406,7 @@ class _CallPageState extends State<CallPage> {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
-          color: getColor(context, "lightDark"),
+          color: getColor(context, "lightDark").withOpacity(0.8),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -435,11 +533,31 @@ class _CallPageState extends State<CallPage> {
       child: CupertinoPageScaffold(
         child: Stack(
           children: [
-            centerContent,
+            Container(color: Colors.black),
+            callLoading
+                ? Container(
+                    color: getColor(context, "white"),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Center(
+                          child: CupertinoActivityIndicator(),
+                        ),
+                        const SizedBox(height: 25),
+                        Center(
+                          child: TextFont(
+                            text: "Connecting to ${user!.name}",
+                            fontSize: 15,
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                : centerContent,
             cameraView,
             bottomButtons,
-            selectedId != null ? SizedBox.shrink() : recognizedText,
-            selectedId != null ? responseTextWidget : SizedBox.shrink(),
+            selectedId != null ? Container() : recognizedText,
+            selectedId != null ? responseTextWidget : Container(),
           ],
         ),
       ),

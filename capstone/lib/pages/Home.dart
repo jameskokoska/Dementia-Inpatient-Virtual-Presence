@@ -1,5 +1,6 @@
 import 'package:capstone/database/tables.dart';
 import 'package:capstone/pages/CreateUserPage.dart';
+import 'package:capstone/pages/EditSettingsPage.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/TextFont.dart';
 import 'package:capstone/widgets/UserEntry.dart';
@@ -17,15 +18,31 @@ class HomePage extends StatelessWidget {
         slivers: <Widget>[
           CupertinoSliverNavigationBar(
             largeTitle: const Text('Home'),
-            trailing: CupertinoButton(
-              onPressed: () {
-                Navigator.push(context,
-                    CupertinoPageRoute<Widget>(builder: (BuildContext context) {
-                  return const CreateUserPage();
-                }));
-              },
-              padding: EdgeInsets.zero,
-              child: const Icon(CupertinoIcons.plus),
+            trailing: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                CupertinoButton(
+                  onPressed: () {
+                    Navigator.push(context, CupertinoPageRoute<Widget>(
+                        builder: (BuildContext context) {
+                      return const EditSettingsPage();
+                    }));
+                  },
+                  padding: EdgeInsets.zero,
+                  child: const Icon(
+                      CupertinoIcons.chevron_left_slash_chevron_right),
+                ),
+                CupertinoButton(
+                  onPressed: () {
+                    Navigator.push(context, CupertinoPageRoute<Widget>(
+                        builder: (BuildContext context) {
+                      return const CreateUserPage();
+                    }));
+                  },
+                  padding: EdgeInsets.zero,
+                  child: const Icon(CupertinoIcons.plus),
+                ),
+              ],
             ),
           ),
           StreamBuilder<List<User>>(

@@ -176,7 +176,7 @@ class _RecordResponseState extends State<RecordResponse> {
                                 ? getColor(context, "completeGreen")
                                 : _isRecording
                                     ? getColor(context, "red")
-                                    : Colors.white,
+                                    : Color(0xFFF0F0F0),
                             borderRadius: BorderRadius.circular(50),
                             minSize: 70,
                             padding: EdgeInsets.zero,
@@ -197,9 +197,9 @@ class _RecordResponseState extends State<RecordResponse> {
                                       ? CupertinoIcons.stop_fill
                                       : CupertinoIcons.circle_filled,
                               color: recordingPath != null
-                                  ? Colors.white
+                                  ? Color(0xFFF0F0F0)
                                   : _isRecording
-                                      ? Colors.white
+                                      ? Color(0xFFF0F0F0)
                                       : getColor(context, "red"),
                             ),
                           ),

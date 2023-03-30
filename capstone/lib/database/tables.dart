@@ -43,6 +43,8 @@ String? determinePrevId(currentId) {
 }
 
 Map<String, Map<String, String>> responses = {
+  "Idle": {"idle": "Record an Idle Head"},
+  "Opening": {"opening": "Hi there <name>."},
   "Feelings": {
     "0": "How are you doing today?",
     "1": "Do you know where you are?",
@@ -68,8 +70,9 @@ Map<String, Map<String, String>> responses = {
   "Questions": {
     "7": "Where do you live? ",
     "8": "What are your hobbies?",
+    "extraq1": "What have you been up to?",
+    "extraq2": "How was your week?",
   },
-  "Idle": {"idle": "Record an Idle Head"},
   "Acknowledgements": {"mhm": "Say mhm", "oh": "Say Oh"}
 };
 
@@ -79,6 +82,7 @@ String? findResponseId(String id) {
       return responses[category]![id]!;
     }
   }
+  return null;
 }
 
 class MapInColumnConverter extends TypeConverter<Map<String, String>, String> {

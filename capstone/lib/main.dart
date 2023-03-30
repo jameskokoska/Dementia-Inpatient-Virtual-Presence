@@ -17,7 +17,9 @@ void main() async {
   entireAppLoaded = false;
   WidgetsFlutterBinding.ensureInitialized();
   cameras = await availableCameras();
-  runApp(const InitializeDatabase());
+  await initializeDatabase();
+  await initializeSettings();
+  runApp(const PageScaffold());
   // initNotificationListener();
 }
 
@@ -31,33 +33,6 @@ Map<String, dynamic> appStateSettings = {};
 Future<bool> initializeDatabase() async {
   //Initialize default categories (if length is less than 0 we can create some fake users here)
   return true;
-}
-
-class InitializeDatabase extends StatelessWidget {
-  const InitializeDatabase({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: initializeDatabase(),
-      builder: (context, snapshot) {
-        debugPrint("Initialized Database");
-        Widget child = SizedBox(
-          height: 50,
-          width: 50,
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).colorScheme.secondary,
-            ),
-          ),
-        );
-        if (snapshot.hasData || entireAppLoaded == true) {
-          child = const InitializeApp();
-        }
-        return child;
-      },
-    );
-  }
 }
 
 Future<bool> updateSettings(setting, value,
@@ -95,6 +70,9 @@ Map<String, dynamic> getSettingConstants(Map<String, dynamic> userSettings) {
 Future<Map<String, dynamic>> getUserSettings() async {
   Map<String, dynamic> userPreferencesDefault = {
     "theme": "system",
+    "backend-ip": "http://192.168.2.68:5000",
+    "duration-listen": "3500",
+    "duration-wait": "10500",
   };
 
   final prefs = await SharedPreferences.getInstance();
@@ -128,51 +106,6 @@ Future<bool> initializeSettings() async {
 
   packageInfoGlobal = await PackageInfo.fromPlatform();
   return true;
-}
-
-class InitializeApp extends StatefulWidget {
-  const InitializeApp({Key? key}) : super(key: key);
-
-  @override
-  State<InitializeApp> createState() => _InitializeAppState();
-}
-
-class _InitializeAppState extends State<InitializeApp> {
-  void refreshAppState() {
-    setState(() {});
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: initializeSettings(),
-      builder: (context, snapshot) {
-        debugPrint("Initializing Settings");
-        Widget child = SizedBox(
-          height: 50,
-          width: 50,
-          child: CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Theme.of(context).colorScheme.secondary,
-            ),
-          ),
-        );
-        if (snapshot.hasData || entireAppLoaded == true) {
-          debugPrint("Initialized Settings");
-          child = const PageScaffold();
-        }
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
-          switchInCurve: Curves.easeInOut,
-          switchOutCurve: Curves.easeInOut,
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return FadeScaleTransition(animation: animation, child: child);
-          },
-          child: child,
-        );
-      },
-    );
-  }
 }
 
 class PageScaffold extends StatelessWidget {
