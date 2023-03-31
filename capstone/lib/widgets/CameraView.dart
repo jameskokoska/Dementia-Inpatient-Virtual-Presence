@@ -14,6 +14,7 @@ class CameraView extends StatefulWidget {
 class _CameraViewState extends State<CameraView> {
   late CameraController controller;
   late bool currentIsFacingFront = widget.isFacingFront;
+  bool isControllerDisposed = false;
 
   @override
   void initState() {
@@ -22,12 +23,14 @@ class _CameraViewState extends State<CameraView> {
   }
 
   @override
-  void didUpdateWidget(Widget oldWidget) {
+  void didUpdateWidget(CameraView oldWidget) {
     if (widget.isFacingFront != currentIsFacingFront &&
-        controller.value.isInitialized) {
+        controller.value.isInitialized &&
+        !isControllerDisposed) {
       _initCamera(widget.isFacingFront);
       currentIsFacingFront = widget.isFacingFront;
     }
+    super.didUpdateWidget(oldWidget);
   }
 
   Future<void> _initCamera(bool isFacingFront) async {
@@ -38,30 +41,35 @@ class _CameraViewState extends State<CameraView> {
     } else {
       cameraIndex = 0;
     }
-    controller = CameraController(cameras[cameraIndex], ResolutionPreset.max);
+    if (!isControllerDisposed) {
+      controller = CameraController(cameras[cameraIndex], ResolutionPreset.max);
 
-    controller.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    }).catchError((Object e) {
-      if (e is CameraException) {
-        switch (e.code) {
-          case 'CameraAccessDenied':
-            debugPrint('User denied camera access.');
-            break;
-          default:
-            debugPrint('Handle other errors.');
-            break;
+      controller.initialize().then((_) {
+        if (!mounted) {
+          return;
         }
-      }
-    });
+        setState(() {});
+      }).catchError((Object e) {
+        if (e is CameraException) {
+          switch (e.code) {
+            case 'CameraAccessDenied':
+              debugPrint('User denied camera access.');
+              break;
+            default:
+              debugPrint('Handle other errors.');
+              break;
+          }
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    if (!isControllerDisposed) {
+      controller.dispose();
+      isControllerDisposed = true;
+    }
     super.dispose();
   }
 

@@ -111,9 +111,10 @@ class _CallPageState extends State<CallPage> {
       Debouncer(milliseconds: int.parse(appStateSettings["duration-listen"]));
   Debouncer _silenceDebouncer =
       Debouncer(milliseconds: int.parse(appStateSettings["duration-wait"]));
-
+  Timer? callLoadingTimer;
+  Timer? playOpeningTimer;
   @override
-  void didUpdateWidget(Widget oldWidget) {
+  void didUpdateWidget(CallPage oldWidget) {
     debugPrint("Loaded page");
     if (widget.user != user) {
       _isTalkingDebouncer = Debouncer(
@@ -126,7 +127,8 @@ class _CallPageState extends State<CallPage> {
         selectedId = null;
         isPlayingRecording = false;
       });
-      Future.delayed(const Duration(milliseconds: 2500), () {
+
+      callLoadingTimer = Timer(const Duration(milliseconds: 1500), () {
         setState(() {
           lastRecognizedText = "";
           isMutedFrontEnd = false;
@@ -134,11 +136,12 @@ class _CallPageState extends State<CallPage> {
           selectedId = null;
           callLoading = false;
         });
-        Future.delayed(const Duration(milliseconds: 500), () {
+        playOpeningTimer = Timer(const Duration(milliseconds: 500), () {
           playOpening();
         });
       });
     }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -166,12 +169,16 @@ class _CallPageState extends State<CallPage> {
   _startRecordingLoop() async {
     while (true) {
       await Future.delayed(const Duration(milliseconds: 100), () {
-        if (isPlayingRecording == true || lastRecognizedText != "") {
+        if (callLoading == false &&
+            (isPlayingRecording == true || lastRecognizedText != "")) {
           _silenceDebouncer.run(() {
             playRandomQuestion();
           });
         }
-        if (isPlayingRecording == false && user != null && !isMutedFrontEnd) {
+        if (callLoading == false &&
+            isPlayingRecording == false &&
+            user != null &&
+            !isMutedFrontEnd) {
           speech.listen(
             onResult: (result) {
               _silenceDebouncer.run(() {
@@ -227,6 +234,21 @@ class _CallPageState extends State<CallPage> {
     );
   }
 
+  void endCall() {
+    setState(() {
+      user = null;
+      _isTalkingDebouncer.cancel();
+      _silenceDebouncer.cancel();
+      callLoadingTimer?.cancel();
+      playOpeningTimer?.cancel();
+    });
+    widget.setCurrentPageIndex(0);
+    Future.delayed(const Duration(milliseconds: 100), () {
+      speech.stop();
+      speech.cancel();
+    });
+  }
+
   void _showEndCall() {
     showCupertinoDialog(
       context: context,
@@ -243,14 +265,7 @@ class _CallPageState extends State<CallPage> {
             isDestructiveAction: true,
             onPressed: () {
               Navigator.pop(context);
-              setState(() {
-                user = null;
-              });
-              widget.setCurrentPageIndex(0);
-              Future.delayed(const Duration(milliseconds: 100), () {
-                speech.stop();
-                speech.cancel();
-              });
+              endCall();
             },
             child: const Text('End Call'),
           ),
@@ -354,7 +369,7 @@ class _CallPageState extends State<CallPage> {
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 50),
                   child: PlayBackVideo(
-                    key: ValueKey(2),
+                    key: const ValueKey(2),
                     filePath: user!.recordings["idle"]!,
                     isLooping: true,
                     volume: 0,
@@ -367,8 +382,8 @@ class _CallPageState extends State<CallPage> {
           child: Align(
             alignment: Alignment.center,
             child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 400),
-              child: selectedId != null && user!.recordings[selectedId] != null
+              duration: const Duration(milliseconds: 200),
+              child: selectedId != null && user?.recordings[selectedId] != null
                   ? PlayBackVideo(
                       key: const ValueKey(1),
                       filePath: user!.recordings[selectedId]!,
@@ -378,10 +393,6 @@ class _CallPageState extends State<CallPage> {
                           selectedId = null;
                           isPlayingRecording = false;
                         });
-                        // setState(() {
-                        //   isPlayingARecording = false;
-                        //   isMuted = false;
-                        // });
                       },
                     )
                   : const SizedBox(
@@ -390,13 +401,6 @@ class _CallPageState extends State<CallPage> {
             ),
           ),
         ),
-        // Align(
-        //   alignment: Alignment.bottomCenter,
-        //   child: Padding(
-        //     padding: EdgeInsets.only(bottom: 105),
-        //     child: Model(),
-        //   ),
-        // ),
       ]);
     }
 
@@ -546,7 +550,7 @@ class _CallPageState extends State<CallPage> {
                         const SizedBox(height: 25),
                         Center(
                           child: TextFont(
-                            text: "Connecting to ${user!.name}",
+                            text: "Connecting to ${user?.name}",
                             fontSize: 15,
                           ),
                         )
@@ -574,5 +578,9 @@ class Debouncer {
   run(VoidCallback action) {
     _timer?.cancel();
     _timer = Timer(Duration(milliseconds: milliseconds), action);
+  }
+
+  cancel() {
+    _timer?.cancel();
   }
 }
