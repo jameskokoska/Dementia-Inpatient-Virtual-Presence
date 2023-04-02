@@ -1,0 +1,258 @@
+{
+    "intents": [
+        {
+            "tag": "(0) How are you doing today? ",
+            "patterns": [],
+            "repsonses": [
+                "(0) How are you doing today? "
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(1) Do you know where you are? ",
+            "patterns": [
+                "  Oh, hello there. I'm doing alright, thank you for asking.",
+                "  Oh, hello! I'm doing well, thank you for asking.",
+                "  I don't know...I just feel confused."
+            ],
+            "repsonses": [
+                "(1) Do you know where you are? "
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(2) Do you know what year it is? ",
+            "patterns": [
+                "  Oh, I see. Yes, I am here in the hospital.",
+                "  Ah, I see. Thank you for letting me know."
+            ],
+            "repsonses": [
+                "(2) Do you know what year it is? "
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(3) Do you know what season it is? ",
+            "patterns": [
+                "  Oh my, time certainly flies doesn't it?",
+                "  Oh, wow. I had no idea it's already that far into the future."
+            ],
+            "repsonses": [
+                "(3) Do you know what season it is? "
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(4) Do you remember the time when <insert pleasant memory cue>?",
+            "patterns": [
+                "  Ah, yes. Winter it is.",
+                "  Oh, of course. Leaves must be falling everywhere.",
+                "  Three. Why do you ask?"
+            ],
+            "repsonses": [
+                "(4) Do you remember the time when <insert pleasant memory cue>?"
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(5) How many children do you have?",
+            "patterns": [
+                "  I have children? Hmm, I can't seem to remember how many or their names.",
+                "  Oh, I have three beautiful children. Such kind and loving souls, all of them.",
+                "  I have three kids. Two girls and a boy. They used to visit me here but I haven't seen them in a while."
+            ],
+            "repsonses": [
+                "(5) How many children do you have?"
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(6) Do you have a spouse? What is their name? ",
+            "patterns": [],
+            "repsonses": [
+                "(6) Do you have a spouse? What is their name? "
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(7) Where do you live? ",
+            "patterns": [],
+            "repsonses": [
+                "(7) Where do you live? "
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(8) What are your hobbies?",
+            "patterns": [],
+            "repsonses": [
+                "(8) What are your hobbies?"
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(9) Are you feeling scared? Afraid? Tell me more about how you are feeling. ",
+            "patterns": [
+                "  I'm not sure, dear. Do you know?"
+            ],
+            "repsonses": [
+                "(9) Are you feeling scared? Afraid? Tell me more about how you are feeling. "
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(10) Do you like to read?",
+            "patterns": [],
+            "repsonses": [
+                "(10) Do you like to read?"
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(11) Today is <insert date> ",
+            "patterns": [],
+            "repsonses": [
+                "(11) Today is <insert date> "
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(12) It is the year <insert year> ",
+            "patterns": [
+                "  Hmm, I'm not quite sure. Can you tell me?",
+                "  Hmm, I'm not sure. What year is it?"
+            ],
+            "repsonses": [
+                "(12) It is the year <insert year> "
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(13) It is <season> now ",
+            "patterns": [
+                "  Let's see\u2026I do believe it's winter?",
+                "  It's hard to keep track sometimes. Is it fall already?"
+            ],
+            "repsonses": [
+                "(13) It is <season> now "
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(14) You are in <insert name of hospital>",
+            "patterns": [
+                "  I do believe I am in the hospital.",
+                "  No, I'm not exactly sure. Can you tell me where we are?",
+                "  I think I'm at home. But it doesn't look like my home."
+            ],
+            "repsonses": [
+                "(14) You are in <insert name of hospital>"
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(15) You are in the hospital because you are sick.",
+            "patterns": [
+                "  Why am I here?"
+            ],
+            "repsonses": [
+                "(15) You are in the hospital because you are sick."
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(16) You must be feeling very scared right now. ",
+            "patterns": [
+                "  Honestly, I do feel a bit scared sometimes. It's hard not being able to remember things like I used to."
+            ],
+            "repsonses": [
+                "(16) You must be feeling very scared right now. "
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(17) Tell me about your friends in school.",
+            "patterns": [],
+            "repsonses": [
+                "(17) Tell me about your friends in school."
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(18) Tell me about your children. ",
+            "patterns": [
+                "  Oh, I remember when I went on a road trip with my family to the beach. It was such a lovely time.",
+                "  Yes, I remember when we used to have picnics in the park all the time. It was so much fun.",
+                "  Wait, who are you?"
+            ],
+            "repsonses": [
+                "(18) Tell me about your children. "
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(19) Okay.",
+            "patterns": [
+                "  Yes, it's a bit overwhelming at times.",
+                "  I have three children, two daughters and a son.",
+                "  Vacation? Where did we go?"
+            ],
+            "repsonses": [
+                "(19) Okay."
+            ],
+            "context": [
+                ""
+            ]
+        },
+        {
+            "tag": "(20) Mhhm",
+            "patterns": [
+                "  Oh. Am I going to be okay?"
+            ],
+            "repsonses": [
+                "(20) Mhhm"
+            ],
+            "context": [
+                ""
+            ]
+        }
+    ]
+}

@@ -78,6 +78,9 @@ model = keras.models.load_model("model.h5")
 #   "16": "You must be feeling very scared right now. ",
 #   "17": "Tell me about your friends in school.",
 #   "18": "Tell me about your children.",
+#   "19": "Okay.",
+#   "20": "Mhhm.",
+
 
 prev = {
     'feelings': -1,
