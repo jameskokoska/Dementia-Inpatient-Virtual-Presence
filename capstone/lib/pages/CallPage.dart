@@ -12,6 +12,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<String> getResponse(String inputText, User user) async {
+  Stopwatch stopwatch = new Stopwatch()..start();
+
   String url = appStateSettings["backend-ip"] + '/response';
 
   Map data = {'input_text': inputText};
@@ -29,12 +31,13 @@ Future<String> getResponse(String inputText, User user) async {
 
     for (int j = 0; j < responseIds.length; j++) {
       if (user.recordings[responseIds[j]] != null) {
+        print('Executed in ${stopwatch.elapsed.inMilliseconds}');
         return responseIds[j].toString();
       }
     }
   }
-
-  return json.decode(response.body)["response_id"].toString();
+  print("No recordings found that is the best to select.");
+  return "";
 }
 
 String extractNumberFromEnd(String input) {
@@ -76,7 +79,7 @@ List<String> orderIntents(List<dynamic> intents) {
 }
 
 String? getRandomQuestion(User user) {
-  List<String> questionIDs = responses["Questions"]!.keys.toList();
+  List<String> questionIDs = responses["Prompts"]!.keys.toList();
   questionIDs.shuffle();
   for (String responseID in questionIDs) {
     if (user.recordings[responseID] != null) {

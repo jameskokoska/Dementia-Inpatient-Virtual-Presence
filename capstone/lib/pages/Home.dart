@@ -5,6 +5,7 @@ import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/TextFont.dart';
 import 'package:capstone/widgets/UserEntry.dart';
 import 'package:flutter/cupertino.dart';
+import 'dart:developer';
 
 class HomePage extends StatelessWidget {
   const HomePage({required this.setUser, super.key});
@@ -49,7 +50,8 @@ class HomePage extends StatelessWidget {
             stream: database.watchUsers(),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                // print(snapshot.data);
+                // inspect(snapshot.data![0].recordings);
+                // getTotalResponsesAvailable();
                 if (snapshot.data!.isEmpty) {
                   return SliverToBoxAdapter(
                     child: Padding(

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:capstone/pages/RecordResponse.dart';
 import 'package:drift/drift.dart';
@@ -43,37 +44,45 @@ String? determinePrevId(currentId) {
 }
 
 Map<String, Map<String, String>> responses = {
-  "Idle": {"idle": "Record an Idle Head"},
-  "Opening": {"opening": "Hi there <name>."},
+  "Idle": {
+    "idle": "Record an Idle Head",
+  },
+  "Opening": {
+    "opening": "Greetings <name>.",
+  },
   "Feelings": {
     "0": "How are you doing today?",
     "1": "Do you know where you are?",
-    "2": "Do you know what year it is? ",
-    "3": "Do you know what season it is? ",
     "4": "Do you remember the time when <insert pleasant memory cue>?",
     "5": "How many children do you have? ",
-    "6": "Do you have a spouse? What is their name?",
     "9":
         "Are you feeling scared? Afraid? Tell me more about how you are feeling.",
     "10": "Do you like to read?",
-    "11": "Today is <insert date> ",
-    "12": "It is the year <insert year>",
     "14": "You are in <insert name of hospital> ",
     "15": "You are in the hospital because you are sick. ",
     "16": "You must be feeling very scared right now. ",
-    "17": "Tell me about your friends in school.",
-    "18": "Tell me about your children.",
   },
-  "Weather": {
+  "Dates and Time": {
+    "2": "Do you know what year it is? ",
+    "3": "Do you know what season it is? ",
+    "11": "Today is <insert date> ",
+    "12": "It is the year <insert year>",
     "13": "It is <season> now",
   },
-  "Questions": {
+  // The following "Prompts" are chosen randomly after silence
+  "Prompts": {
+    "6": "Do you have a spouse? What is their name?",
     "7": "Where do you live? ",
     "8": "What are your hobbies?",
     "extraq1": "What have you been up to?",
     "extraq2": "How was your week?",
+    "17": "Tell me about your friends in school.",
+    "18": "Tell me about your children.",
   },
-  "Acknowledgements": {"mhm": "Say mhm", "oh": "Say Oh"}
+  "Acknowledgements": {
+    "19": "OK",
+    "20": "Mmm-hmm",
+  }
 };
 
 String? findResponseId(String id) {
@@ -83,6 +92,20 @@ String? findResponseId(String id) {
     }
   }
   return null;
+}
+
+int getTotalResponsesAvailable() {
+  int totalAvailable = 0;
+  inspect(responses);
+  for (String category in responses.keys) {
+    totalAvailable += responses[category]!.length;
+  }
+  if (totalAvailable > 20) {
+    print("PASS, more than 20 responses available");
+  } else {
+    print("FAIL, less than or equal to 20 responses available");
+  }
+  return totalAvailable;
 }
 
 class MapInColumnConverter extends TypeConverter<Map<String, String>, String> {
