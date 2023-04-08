@@ -26,6 +26,8 @@ Future<String> getResponse(String inputText, User user) async {
     body: body,
   );
 
+  print(response.body);
+
   for (int i = 0; i < json.decode(response.body).length; i++) {
     List<String?> responseIds = orderIntents(json.decode(response.body));
 
@@ -41,13 +43,7 @@ Future<String> getResponse(String inputText, User user) async {
 }
 
 String extractNumberFromEnd(String input) {
-  final RegExp regex = RegExp(r'\((\d+)\)$');
-  final Match? match = regex.firstMatch(input);
-  if (match == null) {
-    throw ArgumentError(
-        'Input does not contain a number in brackets at the end.');
-  }
-  return match.group(1)!;
+  return input.split(" ")[0].replaceAll("(", "").replaceAll(")", "");
 }
 
 List<String> orderIntents(List<dynamic> intents) {
@@ -105,6 +101,7 @@ class _CallPageState extends State<CallPage> {
   bool isAvailable = false;
   bool isMutedFrontEnd = false;
   String lastRecognizedText = "";
+  String textStream = "";
   bool isFacingFront = true;
   String? selectedId;
   late User? user = widget.user;
@@ -120,6 +117,7 @@ class _CallPageState extends State<CallPage> {
   void didUpdateWidget(CallPage oldWidget) {
     debugPrint("Loaded page");
     if (widget.user != user) {
+      // required when user updates settings
       _isTalkingDebouncer = Debouncer(
           milliseconds: int.parse(appStateSettings["duration-listen"]));
       _silenceDebouncer =
@@ -188,6 +186,9 @@ class _CallPageState extends State<CallPage> {
                 playRandomQuestion();
               });
               print(result.recognizedWords);
+              setState(() {
+                textStream = result.recognizedWords;
+              });
               if (result.finalResult) {
                 setState(() {
                   lastRecognizedText =
@@ -240,15 +241,24 @@ class _CallPageState extends State<CallPage> {
   void endCall() {
     setState(() {
       user = null;
-      _isTalkingDebouncer.cancel();
-      _silenceDebouncer.cancel();
-      callLoadingTimer?.cancel();
-      playOpeningTimer?.cancel();
+      selectedId = null;
+      isPlayingRecording = false;
+      lastRecognizedText = "";
+      textStream = "";
     });
+    _isTalkingDebouncer.cancel();
+    _silenceDebouncer.cancel();
+    callLoadingTimer?.cancel();
+    playOpeningTimer?.cancel();
     widget.setCurrentPageIndex(0);
-    Future.delayed(const Duration(milliseconds: 100), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       speech.stop();
       speech.cancel();
+      user = null;
+      selectedId = null;
+      isPlayingRecording = false;
+      lastRecognizedText = "";
+      textStream = "";
     });
   }
 
@@ -305,6 +315,8 @@ class _CallPageState extends State<CallPage> {
   }
 
   bool playRandomQuestion() {
+    // TODO only play responses the caregiver recorded
+    // ALSO TODO the delete is broken (deletes recording when hit cancel)
     if (isMutedFrontEnd == false) {
       String? selectedIdResponse = getRandomQuestion(user!);
       debugPrint("randomQuestion $selectedIdResponse");
@@ -486,7 +498,7 @@ class _CallPageState extends State<CallPage> {
         ),
       ),
     );
-    Widget recognizedText = lastRecognizedText != ""
+    Widget recognizedText = textStream != ""
         ? Positioned(
             bottom: 145,
             width: MediaQuery.of(context).size.width,
@@ -495,7 +507,7 @@ class _CallPageState extends State<CallPage> {
               padding: const EdgeInsets.only(
                   left: 8.0, right: 8.0, top: 5, bottom: 9),
               child: TextFont(
-                text: lastRecognizedText,
+                text: textStream,
                 maxLines: 2,
                 textAlign: TextAlign.center,
               ),
@@ -511,7 +523,7 @@ class _CallPageState extends State<CallPage> {
               padding: const EdgeInsets.only(
                   left: 8.0, right: 8.0, top: 5, bottom: 9),
               child: TextFont(
-                textColor: Colors.red,
+                textColor: Colors.green,
                 text: findResponseId(selectedId ?? "") ?? "",
                 maxLines: 2,
                 textAlign: TextAlign.center,
