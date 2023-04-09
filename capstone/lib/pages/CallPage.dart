@@ -82,6 +82,7 @@ String? getRandomQuestion(User user) {
       return responseID.toString();
     }
   }
+  print("Random question not recorded");
   return null;
 }
 
@@ -316,7 +317,6 @@ class _CallPageState extends State<CallPage> {
 
   bool playRandomQuestion() {
     // TODO only play responses the caregiver recorded
-    // ALSO TODO the delete is broken (deletes recording when hit cancel)
     if (isMutedFrontEnd == false) {
       String? selectedIdResponse = getRandomQuestion(user!);
       debugPrint("randomQuestion $selectedIdResponse");
@@ -404,6 +404,14 @@ class _CallPageState extends State<CallPage> {
                       filePath: user!.recordings[selectedId]!,
                       isLooping: false,
                       onFinishPlayback: () {
+                        print(getCategoryByKey(selectedId));
+                        if (appStateSettings["q-after-ackowledge"] == "true" &&
+                            getCategoryByKey(selectedId) ==
+                                "Acknowledgements") {
+                          Future.delayed(const Duration(milliseconds: 200), () {
+                            playRandomQuestion();
+                          });
+                        }
                         setState(() {
                           selectedId = null;
                           isPlayingRecording = false;

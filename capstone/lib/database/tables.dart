@@ -85,6 +85,19 @@ Map<String, Map<String, String>> responses = {
   }
 };
 
+String? getCategoryByKey(String? key) {
+  if (responses.containsKey(key)) {
+    return key;
+  } else {
+    for (String category in responses.keys) {
+      if (responses[category]!.containsKey(key)) {
+        return category;
+      }
+    }
+    return null;
+  }
+}
+
 String? findResponseId(String id) {
   for (String category in responses.keys) {
     if (responses[category]![id] != null) {

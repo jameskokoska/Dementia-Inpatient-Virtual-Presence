@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:capstone/colors.dart';
 import 'package:capstone/database/tables.dart';
+import 'package:capstone/main.dart';
 import 'package:capstone/pages/PlayBackVideo.dart';
 import 'package:capstone/struct/databaseGlobal.dart';
 import 'package:capstone/widgets/TextFont.dart';
@@ -226,20 +227,80 @@ class _RecordResponseState extends State<RecordResponse> {
                 ),
               ),
             ),
-            IgnorePointer(
-              child: Opacity(
-                opacity: 0.5,
-                child: Container(
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/PersonOutline.png'),
-                    ),
+            DraggableOverlay(
+              initialOffset: Offset(
+                  appStateSettings["overlay-position-x"] == "-1"
+                      ? 0
+                      : double.parse(appStateSettings["overlay-position-x"]),
+                  appStateSettings["overlay-position-y"] == "-1"
+                      ? (MediaQuery.of(context).size.width <
+                                  MediaQuery.of(context).size.height
+                              ? MediaQuery.of(context).size.width
+                              : MediaQuery.of(context).size.height) /
+                          2
+                      : double.parse(appStateSettings["overlay-position-y"])),
+              child: Container(
+                width: MediaQuery.of(context).size.width <
+                        MediaQuery.of(context).size.height
+                    ? MediaQuery.of(context).size.width
+                    : MediaQuery.of(context).size.height,
+                height: MediaQuery.of(context).size.width <
+                        MediaQuery.of(context).size.height
+                    ? MediaQuery.of(context).size.width
+                    : MediaQuery.of(context).size.height,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/PersonOutline.png'),
                   ),
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class DraggableOverlay extends StatefulWidget {
+  const DraggableOverlay(
+      {super.key, required this.child, required this.initialOffset});
+
+  final Widget child;
+  final Offset initialOffset;
+
+  @override
+  State<DraggableOverlay> createState() => _DraggableOverlayState();
+}
+
+class _DraggableOverlayState extends State<DraggableOverlay> {
+  Offset position = const Offset(0, 0);
+  @override
+  void initState() {
+    position = widget.initialOffset;
+    setState(() {});
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: position.dx,
+      top: position.dy,
+      child: Draggable(
+        feedback: widget.child,
+        childWhenDragging: Opacity(
+          opacity: 0.5,
+          child: widget.child,
+        ),
+        onDragEnd: (details) {
+          setState(() => position = details.offset);
+          print(position.dx);
+          print(position.dy);
+          updateSettings("overlay-position-x", (position.dx).toString());
+          updateSettings("overlay-position-y", (position.dy).toString());
+        },
+        child: widget.child,
       ),
     );
   }

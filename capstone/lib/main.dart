@@ -73,6 +73,9 @@ Future<Map<String, dynamic>> getUserSettings() async {
     "backend-ip": "http://192.168.2.68:5000",
     "duration-listen": "3500",
     "duration-wait": "10500",
+    "overlay-position-x": "-1",
+    "overlay-position-y": "-1",
+    "q-after-ackowledge": "true",
   };
 
   final prefs = await SharedPreferences.getInstance();

@@ -39,14 +39,17 @@ class RecordResponseEntry extends StatelessWidget {
       trailing: CupertinoButton(
         onPressed: () async {
           if (complete) {
+            bool result = true;
             try {
-              await deleteVideo(context, user.recordings[responseID]!);
+              result = await deleteVideo(context, user.recordings[responseID]!);
             } catch (e) {
               showCupertinoSnackBar(context: context, message: e.toString());
             }
-            User updatedUser = user;
-            updatedUser.recordings.remove(responseID);
-            database.createOrUpdateUser(updatedUser);
+            if (result) {
+              User updatedUser = user;
+              updatedUser.recordings.remove(responseID);
+              database.createOrUpdateUser(updatedUser);
+            }
             return;
           } else {
             Navigator.push(context,

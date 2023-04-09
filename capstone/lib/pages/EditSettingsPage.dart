@@ -54,11 +54,44 @@ class EditSettingsPage extends StatelessWidget {
                           updateSettings("duration-wait", value);
                         },
                       ),
+                      const QAfterAckowledgeSetting(),
                     ],
                   ),
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class QAfterAckowledgeSetting extends StatefulWidget {
+  const QAfterAckowledgeSetting({super.key});
+
+  @override
+  State<QAfterAckowledgeSetting> createState() =>
+      _QAfterAckowledgeSettingState();
+}
+
+class _QAfterAckowledgeSettingState extends State<QAfterAckowledgeSetting> {
+  bool value = appStateSettings["q-after-ackowledge"] == "true";
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoFormRow(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text('Choose random question\nafter acknowledgement'),
+          CupertinoSwitch(
+            onChanged: (valuePassed) {
+              setState(() {
+                value = valuePassed;
+              });
+              updateSettings("q-after-ackowledge", (valuePassed).toString());
+            },
+            value: value,
           ),
         ],
       ),

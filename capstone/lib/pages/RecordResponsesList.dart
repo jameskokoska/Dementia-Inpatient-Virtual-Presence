@@ -143,6 +143,10 @@ class _RecordResponsesListState extends State<RecordResponsesList> {
                             Text(widget.isEditing ? "Update User" : "Add User"),
                         onPressed: () {
                           if (_formKey.currentState!.validate()) {
+                            database.createOrUpdateUser(
+                              user.copyWith(
+                                  name: name, description: description),
+                            );
                             Navigator.pop(context);
                           }
                         },
