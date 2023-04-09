@@ -18,7 +18,7 @@ Future<String> getResponse(String inputText, User user) async {
 
   Map data = {'input_text': inputText};
   String body = json.encode(data);
-  debugPrint(body);
+  // debugPrint(body);
 
   var response = await http.post(
     Uri.parse(url),
@@ -26,7 +26,8 @@ Future<String> getResponse(String inputText, User user) async {
     body: body,
   );
 
-  print(response.body);
+  print("Top 3 most probable replies:");
+  print(getFirstThreeElements(json.decode(response.body)));
 
   for (int i = 0; i < json.decode(response.body).length; i++) {
     List<String?> responseIds = orderIntents(json.decode(response.body));
@@ -40,6 +41,14 @@ Future<String> getResponse(String inputText, User user) async {
   }
   print("No recordings found that is the best to select.");
   return "";
+}
+
+List<T> getFirstThreeElements<T>(List<T> list) {
+  if (list.length >= 3) {
+    return list.sublist(0, 3);
+  } else {
+    return list;
+  }
 }
 
 String extractNumberFromEnd(String input) {
@@ -107,6 +116,7 @@ class _CallPageState extends State<CallPage> {
   String? selectedId;
   late User? user = widget.user;
   bool isPlayingRecording = false;
+  bool hasFinishedOneRecognition = false;
 
   Debouncer _isTalkingDebouncer =
       Debouncer(milliseconds: int.parse(appStateSettings["duration-listen"]));
@@ -128,6 +138,7 @@ class _CallPageState extends State<CallPage> {
         user = widget.user;
         selectedId = null;
         isPlayingRecording = false;
+        hasFinishedOneRecognition = false;
       });
 
       callLoadingTimer = Timer(const Duration(milliseconds: 1500), () {
@@ -137,6 +148,7 @@ class _CallPageState extends State<CallPage> {
           isPlayingRecording = false;
           selectedId = null;
           callLoading = false;
+          hasFinishedOneRecognition = false;
         });
         playOpeningTimer = Timer(const Duration(milliseconds: 500), () {
           playOpening();
@@ -179,29 +191,35 @@ class _CallPageState extends State<CallPage> {
         }
         if (callLoading == false &&
             isPlayingRecording == false &&
-            user != null &&
-            !isMutedFrontEnd) {
+            user != null) {
           speech.listen(
             onResult: (result) {
               _silenceDebouncer.run(() {
-                playRandomQuestion();
+                if (!isMutedFrontEnd) {
+                  playRandomQuestion();
+                }
               });
-              print(result.recognizedWords);
-              setState(() {
-                textStream = result.recognizedWords;
-              });
-              if (result.finalResult) {
+              // print(result.recognizedWords);
+              if (!isMutedFrontEnd) {
                 setState(() {
-                  lastRecognizedText =
-                      (lastRecognizedText + " " + result.recognizedWords)
-                          .trim();
-                });
-              } else {
-                _isTalkingDebouncer.run(() {
-                  print("DEBOUNCER OVER");
-                  _determineWhatToPlay(lastRecognizedText);
+                  textStream = result.recognizedWords;
                 });
               }
+              if (result.finalResult) {
+                if (!isMutedFrontEnd) {
+                  setState(() {
+                    lastRecognizedText =
+                        (lastRecognizedText + " " + result.recognizedWords)
+                            .trim();
+                    hasFinishedOneRecognition = true;
+                  });
+                }
+              }
+              _isTalkingDebouncer.run(() {
+                if (hasFinishedOneRecognition) {
+                  _determineWhatToPlay(lastRecognizedText);
+                }
+              });
             },
             partialResults: true,
           );
@@ -297,8 +315,9 @@ class _CallPageState extends State<CallPage> {
         if (isMutedFrontEnd == false) {
           print(inputText);
           String selectedIdResponse = await getResponse(inputText, user!);
-          print(selectedIdResponse);
-          print("RESPONSE:" + findResponseId(selectedIdResponse)!);
+          // print(selectedIdResponse);
+          print("Chosen response based on available recordings:");
+          print(findResponseId(selectedIdResponse)!);
           if (selectedId == null) {
             setState(() {
               selectedId = selectedIdResponse;
@@ -319,7 +338,7 @@ class _CallPageState extends State<CallPage> {
     // TODO only play responses the caregiver recorded
     if (isMutedFrontEnd == false) {
       String? selectedIdResponse = getRandomQuestion(user!);
-      debugPrint("randomQuestion $selectedIdResponse");
+      debugPrint("Chose a random prompt based on timeout: $selectedIdResponse");
       if (selectedId == null && selectedIdResponse != null) {
         isPlayingRecording = true;
         lastRecognizedText = "";
@@ -404,7 +423,6 @@ class _CallPageState extends State<CallPage> {
                       filePath: user!.recordings[selectedId]!,
                       isLooping: false,
                       onFinishPlayback: () {
-                        print(getCategoryByKey(selectedId));
                         if (appStateSettings["q-after-ackowledge"] == "true" &&
                             getCategoryByKey(selectedId) ==
                                 "Acknowledgements") {
@@ -415,6 +433,8 @@ class _CallPageState extends State<CallPage> {
                         setState(() {
                           selectedId = null;
                           isPlayingRecording = false;
+                          textStream = "";
+                          hasFinishedOneRecognition = false;
                         });
                       },
                     )
