@@ -9,12 +9,29 @@ This project provides the code of the Dementia Assistant Application, which is d
 
 The system consists of two main components: a Python Backend Server and a Flutter iPad Application frontend interface. The frontend interface runs on an iPad using the Flutter SDK, which allows access to the device's hardware inputs such as the microphone and camera. The backend server is responsible for processing patient inputs, predicting the best response using a machine learning (ML) model, and managing the user database. The frontend interface communicates with the backend server to create guardian user accounts, capture patient inputs, and play pre-recorded videos from guardians as responses.
 
+## Poster Board
+
+![Poster](https://user-images.githubusercontent.com/50821962/231046309-54dcd714-20f1-4793-9ab1-f37e32555b86.png)
+
+[1] Lifted Team, “Video chat may help to reduce agitation in people with dementia,” Lifted, 14-April-2016. [Online]. Available: https://www.liftedcare.com/news/video-chat-may-help-to-reduce-agitation-in-people-with-dementia/. [Accessed: 20-Oct-2022].
+
+[2] Kaleigh Alkenbrack, “Dementia patients take up Ontario psychiatric beds ill-suited to their care, experts say,” Global News, 6-Dec-2020. [Online]. Available: https://globalnews.ca/news/7504858/dementia-patients-ontario-psychiatric-beds/. [Accessed: 16-Sept-2022].
+
+[3] Timothy B. Lee, “Created my own deepfake”, ARS Technica, 16-Dec-2019. [Online]. Available: https://arstechnica.com/science/2019/12/how-i-created-a-deepfake-of-mark-zuckerberg-and-star-treks-data/. [Accessed: 20-Mar-2023].
+
+[4] Martin Anderson, “The Limited Future Of Deepfakes,” Ross Dawson, 25-Mar-2021. [Online]. Available: https://rossdawson.com/futurist/implications-of-ai/the-limited-future-of-deepfakes/. [Accessed: 20-Oct-2022].
+
+Images and Icons from FlatIcon
+
+## System Level Design
+
 ![image](https://user-images.githubusercontent.com/50821962/230512983-b0574fd1-793d-4f6c-8222-779291329027.png)
 
-## Frontend
+### Frontend
 The frontend application runs on an iPad using the Flutter SDK, which provides out-of-the-box frontend libraries and allows for native functionality. The hardware inputs of the iPad, including the microphone and camera, are used to capture information about the guardian for creating pre-recorded video and audio recordings. The user database is stored on the device using SQL, and each user entry contains the file path to the pre-recorded videos, name, and related notes. The user profile is loaded when a call is initiated by the patient, and the information is retrieved from the corresponding guardian's entry in the SQL database. The frontend manages the user database, which stores information about guardian users and their pre-recorded videos. The database is implemented using SQL, which provides data integrity and efficient lookups compared to non-relational database solutions. The user entries in the database contain information such as name, file path to the pre-recorded videos, and related notes.
 
-## Backend: AI Response Model
+### Backend: AI Response Model
 The AI response model is responsible for predicting the best response for a given patient input. The input to the model goes through an input preprocessing phase using Python's Natural Language Toolkit (NLTK). The raw input text is sent to the backend using Flask, and an NLTK tokenizer is used to split the input sentences into a list of words. Each word is lemmatized using an NLTK lemmatizer to extract the root word from each token. The response model is designed as a Bag of Words model, which treats each sentence as a multiset of keywords and attempts to match the set of input keywords to a response from the training dataset. The model is built as a 3-layer neural network with 128 neurons in the input layer, 64 neurons in the middle layer, and 21 neurons in the output layer, each corresponding to a single response phrase. The smaller size of the model, with approximately 213 total neurons and under 10,000 total weights, balances the trade-off between latency and accuracy. The training dataset is tailored to focus on conversations related to health and family, which are common topics for dementia patients.
 
 The backend server communicates with the frontend interface to provide the best response given the patients input list of words.
+
