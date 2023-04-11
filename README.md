@@ -1,5 +1,7 @@
-# ECE496 Capstone Final Year Project
+# Virtual Presence Software for Agitated Inpatients with Dementia
 Project completed by: James Kokoska, Yash Vardhan, Matt Agar
+
+Completed for ECE496 Final Year Design Project at the University of Toronto
 
 ## Virtual Presence Software for Agitated Inpatients with Dementia
 
